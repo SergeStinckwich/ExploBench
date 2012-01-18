@@ -18,4 +18,15 @@ On Ubuntu, you can install MORSE via this [package](http://dl.free.fr/vOrT45L7P)
     export MORSE_BLENDER=$(pwd)/blender-2.61-linux-glibc27-i686/blender
     export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python3/dist-packages
 
+if you want to make the export permanent, use:
+
+    echo "export MORSE_BLENDER=$(pwd)/blender-2.61-linux-glibc27-i686/blender" >> ~/.bashrc
+    echo "export PYTHONPATH=\$PYTHONPATH:/usr/local/lib/python3/dist-packages" >> ~/.bashrc
+    source ~/.bashrc
+
+to check your installation, use:
+
+    morse check
+
+see [MORSE README](https://github.com/laas/morse#readme)
 
