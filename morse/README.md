@@ -30,3 +30,23 @@ to check your installation, use:
 
 see [MORSE README](https://github.com/laas/morse#readme)
 
+[![Build Status](https://secure.travis-ci.org/pierriko/morse.png?branch=travis-upload)](http://travis-ci.org/pierriko/morse?branch=travis-upload)
+
+# ROS
+
+list of topic from this simulation:
+
+    $ rostopic list -v
+
+    Published topics:
+     * /Beego/Pose [nav_msgs/Odometry] 1 publisher
+     * /Beego/LIDAR [sensor_msgs/LaserScan] 1 publisher
+     * /rosout [rosgraph_msgs/Log] 1 publisher
+     * /rosout_agg [rosgraph_msgs/Log] 1 publisher
+     * /Beego/Camera [sensor_msgs/Image] 1 publisher
+
+    Subscribed topics:
+     * /Beego/Motion [geometry_msgs/Twist] 1 subscriber
+     * /rosout [rosgraph_msgs/Log] 1 subscriber
+
+
