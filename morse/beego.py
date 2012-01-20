@@ -30,11 +30,13 @@ camera.translate(x = 0.15, z = 0.582)
 robot.append(camera)
 camera.properties(cam_width = 128, cam_height = 128, Vertical_Flip = True, capturing = False)
 
+"""
 clock = Clock()
 clock.name = "clock"
 clock.properties(middleware_time = True)
 robot.append(clock)
 clock.configure_mw('ros')
+"""
 
 # Configure the middlewares
 motion.configure_mw('ros')

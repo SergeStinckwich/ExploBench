@@ -39,14 +39,13 @@ list of topic from this simulation:
     $ rostopic list -v
 
     Published topics:
-     * /Beego/Pose [nav_msgs/Odometry] 1 publisher
-     * /Beego/LIDAR [sensor_msgs/LaserScan] 1 publisher
+     * /beego/odometry [nav_msgs/Odometry] 1 publisher
+     * /beego/camera [sensor_msgs/Image] 1 publisher
      * /rosout [rosgraph_msgs/Log] 1 publisher
+     * /beego/scan [sensor_msgs/LaserScan] 1 publisher
      * /rosout_agg [rosgraph_msgs/Log] 1 publisher
-     * /Beego/Camera [sensor_msgs/Image] 1 publisher
 
     Subscribed topics:
-     * /Beego/Motion [geometry_msgs/Twist] 1 subscriber
+     * /beego/velocity [geometry_msgs/Twist] 1 subscriber
      * /rosout [rosgraph_msgs/Log] 1 subscriber
-
 
