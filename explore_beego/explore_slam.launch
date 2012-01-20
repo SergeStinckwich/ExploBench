@@ -21,7 +21,7 @@
     <param name="lasamplerange" value ="0.05" />
     <param name="lasamplestep" value ="0.05" />
   </node>
-  <include file="$(find explore_stage)/move.xml" />
-  <include file="$(find explore_stage)/explore_slam.xml" />
+  <include file="$(find explore_beego)/move.xml" />
+  <include file="$(find explore_beego)/explore_slam.xml" />
   
 </launch>

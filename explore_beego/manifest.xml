@@ -3,7 +3,7 @@
   <author>Charles DuHadway</author>
   <license>BSD</license>
   <review status="na" notes=""/>
-  <url>http://ros.org/wiki/explore_stage</url>
+  <url>http://ros.org/wiki/explore_beego</url>
   <depend package="stage"/>
   <depend package="explore"/>
   <depend package="move_base"/>
