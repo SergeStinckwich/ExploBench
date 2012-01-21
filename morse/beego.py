@@ -17,11 +17,12 @@ pose.name = "odometry"
 pose.translate(x = -0.12, z = 0.46)
 robot.append(pose)
 
-# Append a sick laser
-sick = Sensor('sick')
-sick.name = "scan"
-sick.translate(x = 0.03, z = 0.56)
-robot.append(sick)
+# Append a scan laser
+scan = Sensor('sick')
+scan.name = "scan"
+scan.translate(x = 0.03, z = 0.56)
+scan.frequency(12) # with logic tic rate 60 Hz = update every 0.2 sec (5 Hz)
+robot.append(scan)
 
 # Append a camera
 camera = Sensor('video_camera')
@@ -41,11 +42,12 @@ clock.configure_mw('ros')
 # Configure the middlewares
 motion.configure_mw('ros')
 pose.configure_mw('ros')
-sick.configure_mw('ros')
+scan.configure_mw('ros')
 camera.configure_mw('ros')
 
 # Select the environement
-env = Environment('beego-env.blend')
+#env = Environment('beego-env.blend')
+env = Environment('lab2.blend')
 env.aim_camera([1.0470, 0, 0.7854])
 # for virtual machine users:
 #env.set_viewport(viewport_shade = 'WIREFRAME')
