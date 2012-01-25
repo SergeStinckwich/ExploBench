@@ -10,7 +10,7 @@ roscorepid=$!
 sleep 5
 rosrun explore_beego remap_laser.py from:=/beego/scan to:=/base_scan &
 remaplaserpid=$! # TODO put remap in launch
-rosrun explore_beego remap_twist.py from:=/cmd_vel to:=/beego/velocity &
+#rosrun explore_beego remap_twist.py from:=/cmd_vel to:=/beego/velocity &
 remaptwistpid=$! # TODO put remap in launch
 rosrun explore_beego remap_odom.py from:=/beego/odometry to:=/odom &
 remapodompid=$! # TODO put remap in launch
