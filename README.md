@@ -42,7 +42,6 @@ see [MORSE README](https://github.com/laas/morse#readme)
 
 _WARN_: Patch ROS Python3
 -----------------------
-
 You might need to patch ROS (due to a regression in Python3 compatibility):
 
     wget http://anr-proteus.github.com/slides/rospy3k.patch 
@@ -55,7 +54,6 @@ You might need to patch ROS (due to a regression in Python3 compatibility):
 3. press "`P`" key in Blender 3D View to launch the simulation
 4. in a new terminal, run 'velexplo.sh'
 5. in order to view the sensors data, launch rviz: rosrun rviz rviz -d explore_beego/explore.vcg
-
 
 # If you want to list all the topics from this simulation
 
