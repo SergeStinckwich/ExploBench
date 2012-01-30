@@ -1,10 +1,7 @@
 ExploBench
 ==========
 
-
-
-  * see [this video](http://youtube.com/embed/I6m4DMM6bIM?rel=0&hd=1)
-  * see [morse/readme](https://github.com/SergeStinckwich/ExploBench/tree/master/morse#readme)
+A video of MORSE simulation is available [here](http://youtube.com/embed/I6m4DMM6bIM?rel=0&hd=1)
 
 MORSE Simulation
 ================
@@ -12,7 +9,9 @@ MORSE Simulation
 The morse folder contains Beego files for [MORSE](http://morse.openrobots.org/) 
 simulation. MORSE is a generic simulator for academic robotics.
 
-# Basic install
+Before installing the MORSE simulation, you need to install ROS.
+
+# Basic install with a script
 
 Execute the morse/misc/install.sh
 
