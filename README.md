@@ -40,14 +40,6 @@ see [MORSE README](https://github.com/laas/morse#readme)
 
 [![Build Status](https://secure.travis-ci.org/pierriko/morse.png?branch=travis-upload)](http://travis-ci.org/pierriko/morse?branch=travis-upload)
 
-#Run the simulation
-
-1. run `morse beego.py` (cf. [slides](http://bit.ly/proteus2) )
-2. in a new terminal, run `test.sh`
-3. ⌨ press "`P`" key in Blender 3D View to launch the simulation
-4. in a new terminal, run 'velexplo.sh'
-5. In order to view the sensors data, launch rviz: rosrun rviz rviz -d explore_beego/explore.vcg
-
 _WARN_: Patch ROS Python3
 -----------------------
 
@@ -56,11 +48,16 @@ You might need to patch ROS (due to a regression in Python3 compatibility):
     wget http://anr-proteus.github.com/slides/rospy3k.patch 
     sudo patch -p0 < rospy3k.patch
 
+#Run the simulation
+
+1. run `morse beego.py` (cf. [slides](http://bit.ly/proteus2) )
+2. in a new terminal, run `test.sh`
+3. press "`P`" key in Blender 3D View to launch the simulation
+4. in a new terminal, run 'velexplo.sh'
+5. in order to view the sensors data, launch rviz: rosrun rviz rviz -d explore_beego/explore.vcg
 
 
-# ROS
-
-list of topic from this simulation:
+# If you want to list all the topics from this simulation
 
     $ rostopic list -v
 
