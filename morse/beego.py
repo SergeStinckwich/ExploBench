@@ -45,10 +45,12 @@ pose.configure_mw('ros')
 scan.configure_mw('ros')
 camera.configure_mw('ros')
 
+robot.translate(x = -1)
+
 # Select the environement
-#env = Environment('beego-env.blend')
-env = Environment('lab2.blend')
+env = Environment('beego-env.blend')
+#env = Environment('lab2.blend')
 env.aim_camera([1.0470, 0, 0.7854])
 # for virtual machine users:
-#env.set_viewport(viewport_shade = 'WIREFRAME')
+env.set_viewport(viewport_shade = 'WIREFRAME')
 
