@@ -49,13 +49,16 @@ You might need to patch ROS (due to a regression in Python3 compatibility):
     wget http://anr-proteus.github.com/slides/rospy3k.patch 
     sudo patch -p0 < rospy3k.patch
 
-# Run the simulation
+# Install ExploBench
+    git clone git@github.com:SergeStinckwich/ExploBench.git
 
-1. run `morse beego.py` (cf. [slides](http://bit.ly/proteus2) )
-2. in a new terminal, run `test.sh`
-3. press "`P`" key in Blender 3D View to launch the simulation
-4. in a new terminal, run 'velexplo.sh'
-5. in order to view the sensors data, launch rviz: rosrun rviz rviz -d explore_beego/explore.vcg
+# Run the simulation
+1. cd ExploBench/morse
+2. run `morse beego.py` (cf. [slides](http://bit.ly/proteus2) )
+3. in a new terminal: cd ExploBench; source test.sh
+4. press "`P`" key in Blender 3D View to launch the simulation
+5. in a new terminal: cd ExploBench; source velexplo.sh
+6. in order to view the sensors data, launch rviz: rosrun rviz rviz -d explore_beego/explore.vcg
 
 # If you want to list all the topics from this simulation
 
