@@ -1,7 +1,7 @@
 ExploBench
 ==========
 
-A video of MORSE simulation is available [here](http://youtube.com/embed/I6m4DMM6bIM?rel=0&hd=1)
+ExploBench is a tesbed to test/simulate exploration algorithms on top on the ROS framework.
 
 MORSE Simulation
 ================
@@ -9,13 +9,15 @@ MORSE Simulation
 The morse folder contains Beego files for [MORSE](http://morse.openrobots.org/) 
 simulation. MORSE is a generic simulator for academic robotics.
 
+A video of MORSE simulation is available [here](http://youtube.com/embed/I6m4DMM6bIM?rel=0&hd=1)
+
 Before installing the MORSE simulation, you need to install ROS.
 
 # Basic install with a script
 
 Execute the morse/misc/install.sh
 
-# Install
+# Install by your own
 
 On Ubuntu, you can install MORSE via this [package](http://dl.free.fr/vOrT45L7P):
 
@@ -38,7 +40,6 @@ to check your installation, use:
 
 see [MORSE README](https://github.com/laas/morse#readme)
 
-[![Build Status](https://secure.travis-ci.org/pierriko/morse.png?branch=travis-upload)](http://travis-ci.org/pierriko/morse?branch=travis-upload)
 
 _WARN_: Patch ROS Python3
 -----------------------
@@ -47,7 +48,7 @@ You might need to patch ROS (due to a regression in Python3 compatibility):
     wget http://anr-proteus.github.com/slides/rospy3k.patch 
     sudo patch -p0 < rospy3k.patch
 
-#Run the simulation
+# Run the simulation
 
 1. run `morse beego.py` (cf. [slides](http://bit.ly/proteus2) )
 2. in a new terminal, run `test.sh`
