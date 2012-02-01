@@ -18,10 +18,11 @@ pose.translate(x = -0.12, z = 0.46)
 robot.append(pose)
 
 # Append a scan laser
-scan = Sensor('sick')
+scan = Sensor('sick240.blend')
 scan.name = "scan"
 scan.translate(x = 0.03, z = 0.56)
 scan.frequency(12) # with logic tic rate 60 Hz = update every 0.2 sec (5 Hz)
+scan.properties(laser_range = 10)
 robot.append(scan)
 
 # Append a camera
@@ -31,26 +32,18 @@ camera.translate(x = 0.15, z = 0.582)
 robot.append(camera)
 camera.properties(cam_width = 128, cam_height = 128, Vertical_Flip = True, capturing = False)
 
-"""
-clock = Clock()
-clock.name = "clock"
-clock.properties(middleware_time = True)
-robot.append(clock)
-clock.configure_mw('ros')
-"""
-
 # Configure the middlewares
 motion.configure_mw('ros')
 pose.configure_mw('ros')
-scan.configure_mw('ros')
+scan.configure_mw('ros', component = 'sick')
 camera.configure_mw('ros')
 
 robot.translate(x = -1)
 
 # Select the environement
-env = Environment('beego-env.blend')
-#env = Environment('lab2.blend')
+#env = Environment('beego-env.blend')
+env = Environment('lab2.blend')
 env.aim_camera([1.0470, 0, 0.7854])
 # for virtual machine users:
-env.set_viewport(viewport_shade = 'WIREFRAME')
+#env.set_viewport(viewport_shade = 'WIREFRAME')
 
