@@ -18,7 +18,7 @@ pose.translate(x = -0.12, z = 0.46)
 robot.append(pose)
 
 # Append a scan laser
-scan = Sensor('sick240.blend')
+scan = Sensor('sick')
 scan.name = "scan"
 scan.translate(x = 0.03, z = 0.56)
 scan.frequency(12) # with logic tic rate 60 Hz = update every 0.2 sec (5 Hz)
@@ -43,6 +43,7 @@ robot.translate(x = -1)
 # Select the environement
 #env = Environment('beego-env.blend')
 env = Environment('lab2.blend')
+#env = Environment('land-1/trees')
 env.aim_camera([1.0470, 0, 0.7854])
 # for virtual machine users:
 #env.set_viewport(viewport_shade = 'WIREFRAME')
