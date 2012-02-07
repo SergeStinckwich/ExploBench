@@ -9,7 +9,7 @@ MORSE Simulation
 The morse folder contains Beego files for [MORSE](http://morse.openrobots.org/) 
 simulation. MORSE is a generic simulator for academic robotics.
 
-A video of MORSE simulation is available [here](http://youtube.com/embed/I6m4DMM6bIM?rel=0&hd=1).
+A video of MORSE simulation is available [here](http://youtube.com/embed/videoseries?list=PL289431A5B18BD997&rel=0&hd=1).
 
 Before installing the MORSE simulation, you need to install ROS on Ubuntu Linux.
 You can also run ROS and the simulation in a virtual machine like virtualBox, but the performance are quite low. You need to edit the morse/beego.py file in order to use wireframes for MORSE instead of 3D textures.
