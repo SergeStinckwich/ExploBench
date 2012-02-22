@@ -46,6 +46,8 @@ env = Environment('beego-map2.blend')
 #env = Environment('lab2.blend')
 #env = Environment('land-1/trees')
 env.aim_camera([1.0470, 0, 0.7854])
+# for autostart
+#env.set_auto_start()
 # for virtual machine users:
 #env.set_viewport(viewport_shade = 'WIREFRAME')
 
