@@ -1,7 +1,7 @@
 #!/bin/sh
 
 cookie=$(mktemp)
-url="http://dl.free.fr/jbginO9NL/openrobots-morse-0.4.99-Linux.deb"
+url="http://dl.free.fr/fLBWg6yBM/openrobots-morse-0.4.99-Linux.deb"
 echo "downloading morse package..."
 wget --quiet --keep-session-cookies --save-cookies $cookie $url -O /dev/null
 wget --quiet --load-cookies $cookie $url &
