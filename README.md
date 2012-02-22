@@ -50,7 +50,7 @@ You might need to patch ROS (due to a regression in Python3 compatibility):
     sudo patch -p0 < rospy3k.patch
 
 # Install ExploBench
-    git clone git@github.com:SergeStinckwich/ExploBench.git
+    git clone git://github.com/SergeStinckwich/ExploBench.git
 
 # Run the simulation
 1. cd ExploBench/morse
