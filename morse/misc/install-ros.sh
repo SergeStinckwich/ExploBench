@@ -1,6 +1,6 @@
 #!/bin/sh
 
-sudo apt-get install build-essential python-setuptools subversion git-cvs mercurial python3-dev python3.2-dev ros-electric-ros-base ros-electric-exploration
+sudo apt-get install build-essential python-setuptools subversion git-cvs mercurial python3-dev python3.2-dev ros-electric-ros-base ros-electric-exploration python3-yaml
 # patch ROS Python 3 compatible
 wget http://anr-proteus.github.com/slides/rospy3k.patch 
 sudo patch -p0 < rospy3k.patch

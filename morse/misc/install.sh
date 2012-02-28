@@ -7,7 +7,7 @@ wget --quiet --keep-session-cookies --save-cookies $cookie $url -O /dev/null
 wget --quiet --load-cookies $cookie $url &
 wgetpid=$!
 echo "install morse dependencies:"
-sudo apt-get install python3-dev python3.2-dev libsdl1.2debian 
+sudo apt-get install python3-dev python3.2-dev libsdl1.2debian python3-yaml python-setuptools
 echo "waiting for $url ..."
 wait $wgetpid
 rm $cookie
