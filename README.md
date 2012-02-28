@@ -20,10 +20,10 @@ Execute the morse/misc/install.sh
 
 # Install by your own
 
-On Ubuntu, you can install MORSE via this [package](http://dl.free.fr/vOrT45L7P):
+On Ubuntu, you can install MORSE via this [package](http://ge.tt/20XDXJE):
 
-    sudo apt-get install python3-dev python3.2-dev libsdl1.2debian 
-    sudo dpkg -i openrobots-morse-0.4.99-Linux.deb
+    sudo apt-get install python3-dev python3.2-dev libsdl1.2debian python3-yaml
+    sudo dpkg -i openrobots-morse_0.5_i386.deb
     wget http://download.blender.org/release/Blender2.61/blender-2.61-linux-glibc27-i686.tar.bz2
     tar jxf blender-2.61-linux-glibc27-i686.tar.bz2
     export MORSE_BLENDER=$(pwd)/blender-2.61-linux-glibc27-i686/blender
