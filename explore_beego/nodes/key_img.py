@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 """
-control with keyboard
 usage:
 rosrun explore_beego key_img.py cmd:=/beego/velocity image:=/beego/camera
 """
@@ -23,21 +22,29 @@ class TwistPublisher(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self._cmd = Twist()
+        self._cmd_linear_released = False
+        self._cmd_angular_released = False
     def run(self):
         publisher = rospy.Publisher('/cmd', Twist)
         while not rospy.is_shutdown():
             publisher.publish(self._cmd)
-            self._cmd.linear.x *= .9
-            self._cmd.angular.z *= .9
+            if self._cmd_linear_released:
+                self._cmd.linear.x *= .8
+            if self._cmd_angular_released:
+                self._cmd.angular.z *= .8
             rospy.sleep(.1)
 
-    def cmd_forward(self):
+    def cmd_forward(self, released=False):
+        self._cmd_linear_released = released
         self._cmd.linear.x = 1 # forward
-    def cmd_backward(self):
+    def cmd_backward(self, released=False):
+        self._cmd_linear_released = released
         self._cmd.linear.x = -1 # backward
-    def cmd_left(self):
+    def cmd_left(self, released=False):
+        self._cmd_angular_released = released
         self._cmd.angular.z = 1 # turn left
-    def cmd_right(self):
+    def cmd_right(self, released=False):
+        self._cmd_angular_released = released
         self._cmd.angular.z = -1 # turn right
     def cmd_stop(self):
         self._cmd.linear.x = 0
@@ -66,6 +73,7 @@ class KeyEventFrame(wx.Frame):
 
         self.panel = ImageViewPanel(self)
         self.panel.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
+        self.panel.Bind(wx.EVT_KEY_UP, self.OnKeyUp)
         self.panel.SetFocus()
         self.publisher = TwistPublisher()
         self.DoBindKeys()
@@ -83,6 +91,12 @@ class KeyEventFrame(wx.Frame):
         keycode = event.GetKeyCode()
         if keycode in self.mapKeyFn:
             self.mapKeyFn[keycode]()
+        event.Skip()
+
+    def OnKeyUp(self, event):
+        keycode = event.GetKeyCode()
+        if keycode in self.mapKeyFn:
+            self.mapKeyFn[keycode](True)
         event.Skip()
 
     def HandleImage(self, image):
