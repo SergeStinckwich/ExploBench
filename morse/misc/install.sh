@@ -1,23 +1,20 @@
 #!/bin/sh
 
-cookie=$(mktemp)
-url="http://dl.free.fr/fLBWg6yBM/openrobots-morse-0.4.99-Linux.deb"
+url="http://open.ge.tt/1/files/20XDXJE/0/blob"
 echo "downloading morse package..."
-wget --quiet --keep-session-cookies --save-cookies $cookie $url -O /dev/null
-wget --quiet --load-cookies $cookie $url &
+wget --quiet $url -O openrobots-morse_0.5_i386.deb &
 wgetpid=$!
 echo "install morse dependencies:"
 sudo apt-get install python3-dev python3.2-dev libsdl1.2debian python3-yaml python-setuptools
-echo "waiting for $url ..."
-wait $wgetpid
-rm $cookie
-url="http://download.blender.org/release/Blender2.61/blender-2.61-linux-glibc27-i686.tar.bz2"
+url2="http://download.blender.org/release/Blender2.61/blender-2.61-linux-glibc27-i686.tar.bz2"
 echo "downloading blender..."
-wget --quiet $url &
-wgetpid=$!
-sudo dpkg -i openrobots-morse-0.4.99-Linux.deb
+wget --quiet $url2 &
+wgetpid2=$!
 echo "waiting for $url ..."
 wait $wgetpid
+sudo dpkg -i openrobots-morse-0.4.99-Linux.deb
+echo "waiting for $url2 ..."
+wait $wgetpid2
 tar jxf blender-2.61-linux-glibc27-i686.tar.bz2
 echo "# MORSE install $(date +'%F %T UTC%z')" >> ~/.bashrc
 echo "export MORSE_BLENDER=$(pwd)/blender-2.61-linux-glibc27-i686/blender" >> ~/.bashrc
