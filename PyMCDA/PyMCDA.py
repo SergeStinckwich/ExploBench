@@ -180,32 +180,33 @@ def decision(candidats, criteres, poidsCrit, fctPrefCrit):
 				outRanking = outRankingPlus - outRankingMoins
 				if ( first or outRanking > outRankingMax ):
 					outRankingMax = outRanking
-					meilleurCand = cand1
+					bestCandidate = cand1
 					first = False
-					return meilleurCand
+					return bestCandidate
 
-def paretoFilter (candidats, criteria):
-    candidatsFilt = []
-    for cand1 in candidats:
-        paretoFront = True
-        for cand2 in candidats:
-            if cand1 == cand2:
-                continue
-            if paretoInf(cand1, cand2, criteria):
-                paretoFront = False
-                break
-        if (paretoFront):
-            candidatsFilt.append(cand1)
-    return candidatsFilt
-
-def paretoInf(cand1, cand2, criteria):
+def paretoFilter (candidates, criteria):
+	"""http://en.wikipedia.org/wiki/Pareto_efficiency#Pareto_frontier"""
+	candidatesList = []
+	for cand1 in candidates:
+		paretoFront = True
+		for cand2 in candidates:
+			if cand1 == cand2:
+				continue
+			if paretoInf(cand1, cand2, criteria):
+				paretoFront = False
+				break
+			if (paretoFront):
+				candidatesList.append(cand1)
+				return candidatesList
+			
+def paretoInf(candidate1, candidate2, criteria):
     equals = 0
-    for crit in criteria:
-        valCand1 = cand1[crit]
-        valCand2 = cand2[crit]
-        if (valCand1 > valCand2):
+    for item in criteria:
+        criteriaValueForCandidate1 = candidate1[item]
+        criteriaValueForCandidate2 = candidate2[item]
+        if (criteriaValueForCandidate1 > criteriaValueForCandidate2):
             return False
-        if (valCand1 == valCand2):
+        if (criteriaValueForCandidate1 == criteriaValueForCandidate2):
             equals = equals + 1
     return equals < len(criteria)
 
@@ -232,7 +233,7 @@ candidates.append({'distance': -75, 'quantiteInfo' : 100})
 candidates.append({'distance': -30, 'quantiteInfo' : 5})
 
 #permet de supprimer les candidats ne se trouvant pas sur le front de Pareto
-candidatsFiltres = paretoFilter(candidates,criteria) 
-print('Filter: ', candidatsFiltres)
+filteredCandidates = paretoFilter(candidates,criteria) 
+print('Filter: ', filteredCandidates)
 
-print('Decision: ', decision(candidatsFiltres, criteria, weights, fctPrefCrit))
+print('Decision: ', decision(filteredCandidates, criteria, weights, fctPrefCrit))
