@@ -173,16 +173,16 @@ def decision(candidats, criteres, poidsCrit, fctPrefCrit):
 				val2 = valCand2 - valCand1
 				PiXA = PiXA + poids * fctPref.value(val1)
 				PiAX = PiAX + poids * fctPref.value(val2)
-				outRankingPlus = outRankingPlus + PiXA
-				outRankingMoins = outRankingMoins + PiAX
-				outRankingPlus = outRankingPlus / (len(candidats) - 1)
-				outRankingMoins = outRankingMoins / (len(candidats) - 1)
-				outRanking = outRankingPlus - outRankingMoins
-				if ( first or outRanking > outRankingMax ):
-					outRankingMax = outRanking
-					bestCandidate = cand1
-					first = False
-					return bestCandidate
+			outRankingPlus = outRankingPlus + PiXA
+			outRankingMoins = outRankingMoins + PiAX
+		outRankingPlus = outRankingPlus / (len(candidats) - 1)
+		outRankingMoins = outRankingMoins / (len(candidats) - 1)
+		outRanking = outRankingPlus - outRankingMoins
+		if ( first or outRanking > outRankingMax ):
+			outRankingMax = outRanking
+			bestCandidate = cand1
+			first = False
+	return bestCandidate
 
 def paretoFilter (candidates, criteria):
 	"""http://en.wikipedia.org/wiki/Pareto_efficiency#Pareto_frontier"""
