@@ -146,11 +146,11 @@ class PreferenceFunctionTest(unittest.TestCase):
 		value = threshold2
 		self.assertEquals(g.value(value), f.value(value-threshold1))
 
-	def test_GaussianPreferenceFunction_returns_one_minus_exp_minus_over_2_at_s(self):
-		s = 10
-		f = GaussianPreferenceFunction(s)
-		self.assertEquals(1-math.exp(-1/2), f.value(s))
-
+def test_GaussianPreferenceFunction_returns_one_minus_exp_minus_over_2_at_s(self):
+	s = 10
+	f = GaussianPreferenceFunction(s)
+	self.assertEquals(1-math.exp(-1/2), f.value(s))
+	
 def decision(candidats, criteres, poidsCrit, fctPrefCrit):
 	if (len(candidats) == 1):
 		return candidats[0]
@@ -195,21 +195,21 @@ def paretoFilter (candidates, criteria):
 			if paretoInf(cand1, cand2, criteria):
 				paretoFront = False
 				break
-			if (paretoFront):
-				candidatesList.append(cand1)
-				return candidatesList
+		if (paretoFront):
+			candidatesList.append(cand1)
+	return candidatesList
 			
 def paretoInf(candidate1, candidate2, criteria):
-    equals = 0
-    for item in criteria:
-        criteriaValueForCandidate1 = candidate1[item]
-        criteriaValueForCandidate2 = candidate2[item]
-        if (criteriaValueForCandidate1 > criteriaValueForCandidate2):
-            return False
-        if (criteriaValueForCandidate1 == criteriaValueForCandidate2):
-            equals = equals + 1
-    return equals < len(criteria)
-
+	equals = 0
+	for item in criteria:
+		criteriaValueForCandidate1 = candidate1[item]
+		criteriaValueForCandidate2 = candidate2[item]
+		if (criteriaValueForCandidate1 > criteriaValueForCandidate2):
+			return False
+		if (criteriaValueForCandidate1 == criteriaValueForCandidate2):
+			equals = equals + 1
+	return equals < len(criteria)
+		
 #if __name__ == "__main__":
 #	unittest.main()
 
