@@ -1,0 +1,140 @@
+#!/usr/bin/env python
+"""
+usage:
+rosrun explore_beego map.py cmd:=/beego/velocity map:=/explore/map
+"""
+
+import roslib
+roslib.load_manifest('rospy')
+roslib.load_manifest('nav_msgs')
+roslib.load_manifest('geometry_msgs')
+import rospy
+from nav_msgs.msg import OccupancyGrid
+from geometry_msgs.msg import Twist
+import wx
+import sys
+import threading
+import array
+
+class TwistPublisher(threading.Thread):
+    """ ROS Twist (v,w) Publisher
+    http://www.ros.org/doc/api/geometry_msgs/html/msg/Twist.html
+    """
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self._cmd = Twist()
+        self._cmd_linear_released = False
+        self._cmd_angular_released = False
+        self.cont = True
+    def run(self):
+        publisher = rospy.Publisher('/cmd', Twist)
+        while not rospy.is_shutdown() and self.cont:
+            publisher.publish(self._cmd)
+            if self._cmd_linear_released:
+                self._cmd.linear.x *= .8
+            if self._cmd_angular_released:
+                self._cmd.angular.z *= .8
+            rospy.sleep(.1)
+
+    def cmd_forward(self, released=False):
+        self._cmd_linear_released = released
+        self._cmd.linear.x = 1 # forward
+    def cmd_backward(self, released=False):
+        self._cmd_linear_released = released
+        self._cmd.linear.x = -1 # backward
+    def cmd_left(self, released=False):
+        self._cmd_angular_released = released
+        self._cmd.angular.z = 1 # turn left
+    def cmd_right(self, released=False):
+        self._cmd_angular_released = released
+        self._cmd.angular.z = -1 # turn right
+    def cmd_stop(self, unused=False):
+        self._cmd.linear.x = 0
+        self._cmd.angular.z = 0
+
+class ImageViewPanel(wx.Panel):
+    """ class ImageViewPanel creates a panel with an image on it, inherits wx.Panel 
+    http://ros.org/doc/api/nav_msgs/html/msg/OccupancyGrid.html
+    """
+    def update(self, occupancy_grid):
+        if not hasattr(self, 'staticbmp'):
+            self.staticbmp = wx.StaticBitmap(self)
+            frame = self.GetParent()
+            frame.SetSize((occupancy_grid.info.width, occupancy_grid.info.height))
+        bmp = wx.BitmapFromBuffer(occupancy_grid.info.width, \
+                                  occupancy_grid.info.height, \
+                                  self.getArrayFromData(occupancy_grid.data))
+        self.staticbmp.SetBitmap(bmp)
+    def getArrayFromData(self, data):
+        ar = array.array('b')
+        for pix in data:
+            ar.extend([0, 0, pix])
+        return ar
+
+class KeyEventFrame(wx.Frame):
+    def __init__(self, parent = None, id = -1, title = __file__):
+        wx.Frame.__init__(self, parent, id, title)
+        self.mapKeyFn = {}
+
+        self.panel = ImageViewPanel(self)
+        self.panel.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
+        self.panel.Bind(wx.EVT_KEY_UP, self.OnKeyUp)
+        self.panel.SetFocus()
+        self.publisher = TwistPublisher()
+        self.DoBindKeys()
+
+        self.Centre()
+        self.Show()
+        rospy.init_node('wxKeyTwist')
+        rospy.Subscriber('/map', OccupancyGrid, self.HandleImage)
+        self.publisher.start()
+
+    def BindKey(self, key, function):
+        self.mapKeyFn[key] = function
+
+    def OnKeyDown(self, event):
+        keycode = event.GetKeyCode()
+        if keycode in self.mapKeyFn:
+            self.mapKeyFn[keycode]()
+        event.Skip()
+
+    def OnKeyUp(self, event):
+        keycode = event.GetKeyCode()
+        if keycode in self.mapKeyFn:
+            self.mapKeyFn[keycode](True)
+        event.Skip()
+
+    def HandleImage(self, image):
+        # make sure we update in the UI thread
+        if self.IsShown():
+            wx.CallAfter(self.panel.update, image)
+        # http://wiki.wxpython.org/LongRunningTasks
+
+    def DoBindKeys(self):
+        """ Bind keys to Twist command
+        http://wxpython.org/docs/api/wx.KeyEvent-class.html
+        """
+        self.BindKey(ord('Z'), self.publisher.cmd_forward)
+        self.BindKey(ord('S'), self.publisher.cmd_backward)
+        self.BindKey(ord('Q'), self.publisher.cmd_left)
+        self.BindKey(ord('D'), self.publisher.cmd_right)
+        self.BindKey(wx.WXK_UP,    self.publisher.cmd_forward)
+        self.BindKey(wx.WXK_DOWN,  self.publisher.cmd_backward)
+        self.BindKey(wx.WXK_LEFT,  self.publisher.cmd_left)
+        self.BindKey(wx.WXK_RIGHT, self.publisher.cmd_right)
+        self.BindKey(wx.WXK_SPACE, self.publisher.cmd_stop)
+        self.BindKey(wx.WXK_ESCAPE,self.quit)
+    def quit(self, isKeyUp=False):
+        self.publisher.cont = False
+        self.Close()
+
+def main(argv):
+    app = wx.App()
+    KeyEventFrame()
+    print(__doc__)
+    app.MainLoop()
+    rospy.signal_shutdown("MainLoop")
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
