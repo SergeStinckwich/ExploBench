@@ -18,10 +18,10 @@ class NextBestViewAlgorithm:
     def chooseBestCandidate(self):
         abstract # Override me in derived class
         
-    def chooseCandidatesOnFrontier(self, image):
+    def chooseCandidatesOnFrontier(self):
         shouldBeImplemented
 
-    def moveToBestCandidateLocation():
+    def moveToBestCandidateLocation(self):
         shoulbeBeImplemented
 
     def loop(self, image):
