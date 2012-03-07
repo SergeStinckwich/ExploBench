@@ -56,21 +56,28 @@ class ImageViewPanel(wx.Panel):
     """ class ImageViewPanel creates a panel with an image on it, inherits wx.Panel 
     http://ros.org/doc/api/nav_msgs/html/msg/OccupancyGrid.html
     """
+    display = None
     def update(self, occupancy_grid):
-        if not hasattr(self, 'staticbmp'):
-            if occupancy_grid.info.width > 999 or occupancy_grid.info.height > 999:
-                self.staticbmp = None
-                print("x=%i,y=%i"%(occupancy_grid.info.width, occupancy_grid.info.height))
+        w = occupancy_grid.info.width
+        h = occupancy_grid.info.height
+        d = occupancy_grid.data
+        if not self.display:
+            if w > h:
+                self._width = 512
+                self._height = 512 * h / w
             else:
-                self.staticbmp = wx.StaticBitmap(self)
-                frame = self.GetParent()
-                frame.SetSize((occupancy_grid.info.width, occupancy_grid.info.height))
-        if self.staticbmp is not None:
-            bmp = wx.BitmapFromBuffer(occupancy_grid.info.width, \
-                                      occupancy_grid.info.height, \
-                                      self.getArrayFromData(occupancy_grid.data))
-            self.staticbmp.SetBitmap(bmp)
-    def getArrayFromData(self, data):
+                self._height = 512
+                self._width = 512 * w / h
+            self.display = wx.StaticBitmap(self)
+            frame = self.GetParent()
+            frame.SetSize((self._width, self._height))
+        # from list of point (representation from 2D space) to Bitmap RGB
+        bmp = wx.BitmapFromBuffer(w, h, self.dataToRGB(d))
+        # scale the image to max 512
+        img = bmp.ConvertToImage().Scale(self._width, self._height)
+        # display the image in our Panel
+        self.display.SetBitmap(wx.BitmapFromImage(img))
+    def dataToRGB(self, data):
         ar = array.array('b')
         for pix in data:
             ar.extend([0, 0, pix])
