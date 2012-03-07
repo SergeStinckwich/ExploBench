@@ -58,13 +58,18 @@ class ImageViewPanel(wx.Panel):
     """
     def update(self, occupancy_grid):
         if not hasattr(self, 'staticbmp'):
-            self.staticbmp = wx.StaticBitmap(self)
-            frame = self.GetParent()
-            frame.SetSize((occupancy_grid.info.width, occupancy_grid.info.height))
-        bmp = wx.BitmapFromBuffer(occupancy_grid.info.width, \
-                                  occupancy_grid.info.height, \
-                                  self.getArrayFromData(occupancy_grid.data))
-        self.staticbmp.SetBitmap(bmp)
+            if occupancy_grid.info.width > 999 or occupancy_grid.info.height > 999:
+                self.staticbmp = None
+                print("x=%i,y=%i"%(occupancy_grid.info.width, occupancy_grid.info.height))
+            else:
+                self.staticbmp = wx.StaticBitmap(self)
+                frame = self.GetParent()
+                frame.SetSize((occupancy_grid.info.width, occupancy_grid.info.height))
+        if self.staticbmp is not None:
+            bmp = wx.BitmapFromBuffer(occupancy_grid.info.width, \
+                                      occupancy_grid.info.height, \
+                                      self.getArrayFromData(occupancy_grid.data))
+            self.staticbmp.SetBitmap(bmp)
     def getArrayFromData(self, data):
         ar = array.array('b')
         for pix in data:
