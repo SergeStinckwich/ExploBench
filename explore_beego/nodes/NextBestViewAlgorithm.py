@@ -22,7 +22,7 @@ class NextBestViewAlgorithm:
         shouldBeImplemented
 
     def moveToBestCandidateLocation(self):
-        shoulbeBeImplemented
+        shouldBeImplemented
 
     def loop(self, image):
         self.chooseCandidatesOnFrontier();
@@ -32,6 +32,12 @@ class NextBestViewAlgorithm:
     def __init__(self):
         rospy.init_node('NextBestViewAlgorithm')
         rospy.Subscriber('/map', OccupancyGrid, self.HandleImage)
+
+
+class RandomNBVAlgorithm(NextBestViewAlgorithm):
+    """Move the robot to a randomly choosen candidates"""
+    def chooseBestCandidate(self):
+        shouldBeImplemented
 
 def main(argv):
 
