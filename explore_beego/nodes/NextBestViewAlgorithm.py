@@ -20,7 +20,10 @@ class NextBestViewAlgorithm:
         
     def chooseCandidatesOnFrontier(self, image):
         shouldBeImplemented
- 
+
+    def moveToBestCandidateLocation():
+        shoulbeBeImplemented
+
     def loop(self, image):
         self.chooseCandidatesOnFrontier();
         self.chooseBestCandidate();
