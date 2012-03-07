@@ -14,6 +14,7 @@ import array
 
 class NextBestViewAlgorithm:
     """Abstract class for NBV algorithms"""
+    candidates = None
 
     def chooseBestCandidate(self):
         abstract # Override me in derived class
@@ -31,8 +32,7 @@ class NextBestViewAlgorithm:
 
     def __init__(self):
         rospy.init_node('NextBestViewAlgorithm')
-        rospy.Subscriber('/map', OccupancyGrid, self.HandleImage)
-
+        rospy.Subscriber('/map', OccupancyGrid, self.loop)
 
 class RandomNBVAlgorithm(NextBestViewAlgorithm):
     """Move the robot to a randomly choosen candidates"""
@@ -40,7 +40,6 @@ class RandomNBVAlgorithm(NextBestViewAlgorithm):
         shouldBeImplemented
 
 def main(argv):
-
     rospy.signal_shutdown("MainLoop")
     return 0
 
