@@ -62,8 +62,6 @@ class ImageViewPanel(wx.Panel):
         w = occupancy_grid.info.width
         h = occupancy_grid.info.height
         d = occupancy_grid.data
-        l = known_perimeter(d,w,h)
-        print(l)
         if not self.display:
             if w > h:
                 self._width = 512
@@ -77,7 +75,11 @@ class ImageViewPanel(wx.Panel):
         # from list of point (representation from 2D space) to Bitmap RGB
         bmp = wx.BitmapFromBuffer(w, h, self.dataToRGB(d))
         # scale the image to max 512
-        img = bmp.ConvertToImage().Scale(self._width, self._height)
+        img = bmp.ConvertToImage()
+        # frontier
+        for (x,y) in known_perimeter(d,w,h):
+            img.SetRGB(x, y, 255, 0, 0) 
+        img.Rescale(self._width, self._height)
         # display the image in our Panel
         self.display.SetBitmap(wx.BitmapFromImage(img))
     def dataToRGB(self, data):
