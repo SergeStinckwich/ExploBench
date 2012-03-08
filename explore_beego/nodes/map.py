@@ -15,6 +15,7 @@ import wx
 import sys
 import threading
 import array
+from perimeter import known_perimeter
 
 class TwistPublisher(threading.Thread):
     """ ROS Twist (v,w) Publisher
@@ -61,6 +62,8 @@ class ImageViewPanel(wx.Panel):
         w = occupancy_grid.info.width
         h = occupancy_grid.info.height
         d = occupancy_grid.data
+        l = known_perimeter(d,w,h)
+        print(l)
         if not self.display:
             if w > h:
                 self._width = 512
