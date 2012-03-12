@@ -21,7 +21,7 @@ robot.append(pose)
 scan = Sensor('sick')
 scan.name = "scan"
 scan.translate(x = 0.03, z = 0.56)
-scan.frequency(12) # with logic tic rate 60 Hz = update every 0.2 sec (5 Hz)
+scan.frequency(5) # with logic tic rate 60 Hz = update every 0.2 sec (5 Hz)
 scan.properties(laser_range = 10)
 robot.append(scan)
 
@@ -41,7 +41,7 @@ camera.configure_mw('ros')
 robot.translate(x = -1)
 
 # Select the environement
-env = Environment('beego-map2.blend')
+env = Environment('maze.blend')
 #env = Environment('beego-env.blend')
 #env = Environment('lab2.blend')
 #env = Environment('land-1/trees')

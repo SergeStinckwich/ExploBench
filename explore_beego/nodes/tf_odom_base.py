@@ -17,10 +17,10 @@ from nav_msgs.msg import Odometry
 def handler(msg):
     br = tf.TransformBroadcaster()
     p = msg.pose.pose.position
-    position = (p.x, p.y, p.z)
+    position = (p.x, p.y, 0) # XXX (p.x, p.y, p.z)
     o = msg.pose.pose.orientation
-    orientation = (o.x, o.y, o.z, o.w)
-    br.sendTransform(position, orientation, rospy.Time.now(), "base_footprint", "odom")
+    orientation = (0, 0, o.z, o.w) # XXX (o.x, o.y, o.z, o.w)
+    br.sendTransform(position, orientation, rospy.Time.now(), "/base_footprint", "/odom")
 
 if __name__ == '__main__':
     rospy.init_node('tf_odom_base')
