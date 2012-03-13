@@ -12,7 +12,7 @@ wget --quiet $url2 &
 wgetpid2=$!
 echo "waiting for $url ..."
 wait $wgetpid
-sudo dpkg -i openrobots-morse-0.4.99-Linux.deb
+sudo dpkg -i openrobots-morse_0.5_i386.deb
 echo "waiting for $url2 ..."
 wait $wgetpid2
 tar jxf blender-2.61-linux-glibc27-i686.tar.bz2
