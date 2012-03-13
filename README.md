@@ -30,7 +30,7 @@ On Ubuntu, you can install MORSE via this [package](http://ge.tt/20XDXJE):
     export MORSE_BLENDER=$(pwd)/blender-2.61-linux-glibc27-i686/blender
     export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python3/dist-packages
 
-if you want to make the export permanent, use:
+_TIP_: if you want to make the export permanent, use:
 
     echo "export MORSE_BLENDER=$(pwd)/blender-2.61-linux-glibc27-i686/blender" >> ~/.bashrc
     echo "export PYTHONPATH=\$PYTHONPATH:/usr/local/lib/python3/dist-packages" >> ~/.bashrc
@@ -44,22 +44,31 @@ see [MORSE README](https://github.com/laas/morse#readme)
 
 
 _WARN_: Patch ROS Python3
------------------------
+-------------------------
+
 You might need to patch ROS (due to a regression in Python3 compatibility):
 
     wget http://anr-proteus.github.com/slides/rospy3k.patch 
     sudo patch -p0 < rospy3k.patch
 
+_TIP_: if ROS is not in `/opt/ros`, patch as:
+
+    roscd common_msgs
+    wget http://anr-proteus.github.com/slides/rospy3k.patch -O - | patch -p5
+
 # Install ExploBench
-    git clone git://github.com/SergeStinckwich/ExploBench.git
+
+    git clone https://github.com/SergeStinckwich/ExploBench.git
 
 # Run the simulation
+
 1. cd ExploBench/morse
-2. run `morse beego.py` (cf. [slides](http://bit.ly/proteus2) )
-3. in a new terminal: cd ExploBench; source test.sh
+2. run `morse edit beego.py` (cf. [slides](http://bit.ly/proteus2) )
+3. in a new terminal: `cd ExploBench; source test.sh`
 4. press "`P`" key in Blender 3D View to launch the simulation
-5. in a new terminal: cd ExploBench; source velexplo.sh
-6. in order to view the sensors data, launch rviz: rosrun rviz rviz -d explore_beego/explore.vcg
+5. in a new terminal: `cd ExploBench; source velexplo.sh`
+6. in order to view the sensors data, launch rviz: 
+   `rosrun rviz rviz -d explore_beego/explore.vcg`
 
 # If you want to list all the topics from this simulation
 
