@@ -8,6 +8,7 @@ MORSE Simulation
 
 The morse folder contains Beego files for [MORSE](http://morse.openrobots.org/) 
 simulation. MORSE is a generic simulator for academic robotics.
+[![MORSE Build Status](https://secure.travis-ci.org/pierriko/morse.png?branch=travis-ci)](http://travis-ci.org/pierriko/morse)
 
 A video of MORSE simulation is available [here](http://youtube.com/embed/videoseries?list=PL289431A5B18BD997&rel=0&hd=1).
 
