@@ -19,16 +19,16 @@ def known_perimeter(data, width, height):
           d[pos_above-1] != -1 or d[pos_above] != -1 or d[pos_above+1] != -1 or 
           d[pos_below-1] != -1 or d[pos_below] != -1 or d[pos_below+1] != -1)
     # ignore the main border (1 px)
-    for x in range(1, width-1):
-        for y in range(1, height-1):
+    for x in xrange(1, width-1):
+        for y in xrange(1, height-1):
             if is_unknown_with_known_neighbour(data, width, x, y):
                 p.append((x, y))
     return p
 
 def dump(d,w,h):
     import sys
-    for y in range(h):
-        for x in range(w):
+    for y in xrange(h):
+        for x in xrange(w):
             v = d[y*w+x]
             if   v == -1: sys.stdout.write('?')
             elif v >=  0: sys.stdout.write('%i'%v if v < 9 else "P")
