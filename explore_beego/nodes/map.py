@@ -28,13 +28,15 @@ class TwistPublisher(threading.Thread):
         self._cmd_angular_released = False
         self.cont = True
     def run(self):
+        def slowing(vel, coef=0.8, limit=0.01):
+            return 0.0 if abs(vel) < limit else vel * coef
         publisher = rospy.Publisher('/cmd', Twist)
         while not rospy.is_shutdown() and self.cont:
             publisher.publish(self._cmd)
             if self._cmd_linear_released:
-                self._cmd.linear.x *= .8
+                self._cmd.linear.x = slowing(self._cmd.linear.x)
             if self._cmd_angular_released:
-                self._cmd.angular.z *= .8
+                self._cmd.angular.z = slowing(self._cmd.angular.z)
             rospy.sleep(.1)
 
     def cmd_forward(self, released=False):

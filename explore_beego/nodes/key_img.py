@@ -24,14 +24,17 @@ class TwistPublisher(threading.Thread):
         self._cmd = Twist()
         self._cmd_linear_released = False
         self._cmd_angular_released = False
+        self.cont = True
     def run(self):
+        def slowing(vel, coef=0.8, limit=0.01):
+            return 0.0 if abs(vel) < limit else vel * coef
         publisher = rospy.Publisher('/cmd', Twist)
-        while not rospy.is_shutdown():
+        while not rospy.is_shutdown() and self.cont:
             publisher.publish(self._cmd)
             if self._cmd_linear_released:
-                self._cmd.linear.x *= .8
+                self._cmd.linear.x = slowing(self._cmd.linear.x)
             if self._cmd_angular_released:
-                self._cmd.angular.z *= .8
+                self._cmd.angular.z = slowing(self._cmd.angular.z)
             rospy.sleep(.1)
 
     def cmd_forward(self, released=False):
@@ -46,7 +49,7 @@ class TwistPublisher(threading.Thread):
     def cmd_right(self, released=False):
         self._cmd_angular_released = released
         self._cmd.angular.z = -1 # turn right
-    def cmd_stop(self):
+    def cmd_stop(self, unused=False):
         self._cmd.linear.x = 0
         self._cmd.angular.z = 0
 
@@ -118,6 +121,10 @@ class KeyEventFrame(wx.Frame):
         self.BindKey(wx.WXK_LEFT,  self.publisher.cmd_left)
         self.BindKey(wx.WXK_RIGHT, self.publisher.cmd_right)
         self.BindKey(wx.WXK_SPACE, self.publisher.cmd_stop)
+        self.BindKey(wx.WXK_ESCAPE,self.quit)
+    def quit(self, isKeyUp=False):
+        self.publisher.cont = False
+        self.Close()
 
 def main(argv):
     app = wx.App()
