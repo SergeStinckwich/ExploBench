@@ -41,8 +41,8 @@ class NextBestViewAlgorithm:
 
         # Creates a goal to send to the action server.
         goal = MoveBaseGoal()
-        goal.target_pose.pose.position.x = 0
-        goal.target_pose.pose.position.y = 0
+        goal.target_pose.pose.position.x = bestCandidate[0]
+        goal.target_pose.pose.position.y = bestCandidate[1]
 
         # Sends the goal to the action server.
         self.client.send_goal(goal)
