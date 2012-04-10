@@ -15,6 +15,7 @@ import array
 class NextBestViewAlgorithm:
     """Abstract class for NBV algorithms"""
     candidates = None
+    bestCandidate = None
 
     def chooseBestCandidate(self):
         abstract # Override me in derived class
