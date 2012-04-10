@@ -3,6 +3,9 @@
 marker
 usage:
 rosrun explore_beego marker.py marker:=/visualization_marker
+
+http://ros.org/doc/api/visualization_msgs/html/msg/Marker.html
+http://ros.org/wiki/rviz/DisplayTypes/Marker
 """
 
 import roslib
@@ -15,7 +18,12 @@ poses = {}
 
 def handle(msg):
     #if not msg.id in poses: print(msg.pose)
-    poses[msg.id] = msg.pose
+    if msg.action == Marker.DELETE:
+        print("Marker.DELETE: " + msg.id)
+        #poses[msg.id] = None
+        poses.pop(msg.id)
+    else:
+        poses[msg.id] = msg.pose
     print(poses)
 
 if __name__ == '__main__':
