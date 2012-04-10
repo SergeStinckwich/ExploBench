@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 usage:
-rosrun explore_beego NextBestViewAlgorithm.py cmd:=/beego/velocity map:/explore/map
+rosrun explore_beego NextBestViewAlgorithm.py XXXNBVAlgorithm cmd:=/beego/velocity map:/explore/map
 """
 
 import roslib
@@ -86,6 +86,8 @@ class MCDMPrometheeNBVAlgorithm(NextBextViewAlgorithm):
 
 def main(argv):
     rospy.signal_shutdown("MainLoop")
+    #Use the Python reflection API to run the suitable NBV class
+    getattr(sys.modules[__name__], argv[3])()
     return 0
 
 if __name__ == "__main__":
