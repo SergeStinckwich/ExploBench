@@ -11,6 +11,7 @@ import wx
 import sys
 import threading
 import array
+from random import choice
 
 class NextBestViewAlgorithm:
     """Abstract class for NBV algorithms"""
@@ -38,7 +39,7 @@ class NextBestViewAlgorithm:
 class RandomNBVAlgorithm(NextBestViewAlgorithm):
     """Move the robot to a randomly choosen candidates"""
     def chooseBestCandidate(self):
-        shouldBeImplemented
+        self.bestCandidate = choice(candidates)
 
 def main(argv):
     rospy.signal_shutdown("MainLoop")
