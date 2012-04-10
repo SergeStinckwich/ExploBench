@@ -8,6 +8,7 @@ import roslib
 roslib.load_manifest('rospy')
 roslib.load_manifest('nav_msgs')
 roslib.load_manifest('geometry_msgs')
+roslib.load_manifest('actionlib')
 import rospy
 from nav_msgs.msg import OccupancyGrid
 from geometry_msgs.msg import Twist
