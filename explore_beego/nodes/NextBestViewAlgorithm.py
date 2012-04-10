@@ -17,12 +17,14 @@ import threading
 import array
 from random
 from perimeter import known_perimeter
+import actionlib
 
 class NextBestViewAlgorithm:
     """Abstract class for NBV algorithms"""
     candidates = None
     bestCandidate = None
     occupancy_grid = None
+    client = None
 
     def chooseBestCandidate(self):
         abstract # Override me in derived class
@@ -35,8 +37,19 @@ class NextBestViewAlgorithm:
         
     def moveToBestCandidateLocation(self):
         """Use the navigation stack to move to the goal"""
-        shouldBeImplemented
+        rospy.loginfo("Sending goal")
+
+        # Creates a goal to send to the action server.
+        goal = MoveBaseGoal()
+        goal.target_pose.pose.position.x = 0
+        goal.target_pose.pose.position.y = 0
+
+        # Sends the goal to the action server.
+        self.client.send_goal(goal)
     
+        # Waits for the server to finish performing the action.
+        self.client.waitForResult()
+        
     def className(self):
         shouldBeImplemented
 
@@ -49,7 +62,12 @@ class NextBestViewAlgorithm:
     def __init__(self):
         rospy.init_node('NextBestViewAlgorithm:'+self.className)
         rospy.Subscriber('/map', OccupancyGrid, self.loop)
+        self.client = actionlib.SimpleActionClient('/move_base', MoveBaseAction)
         
+        # Waits until the action server has started up and started
+        # listening for goals.
+        self.client.wait_for_server()
+
 class RandomNBVAlgorithm(NextBestViewAlgorithm):
     """Move the robot to a randomly choosen candidates"""
     def chooseBestCandidate(self):
