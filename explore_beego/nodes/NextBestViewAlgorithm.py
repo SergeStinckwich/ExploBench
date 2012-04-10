@@ -15,7 +15,7 @@ import wx
 import sys
 import threading
 import array
-from random
+import random
 from perimeter import known_perimeter
 import actionlib
 
