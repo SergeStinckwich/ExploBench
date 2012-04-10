@@ -70,7 +70,7 @@ class NextBestViewAlgorithm:
         self.client.wait_for_server()
 
 class RandomNBVAlgorithm(NextBestViewAlgorithm):
-    """Move the robot to a randomly choosen candidates"""
+    """Move the robot to a randomly choosen candidate"""
     def chooseBestCandidate(self):
         self.bestCandidate = random.choice(candidates)
     
@@ -87,7 +87,8 @@ class MCDMPrometheeNBVAlgorithm(NextBextViewAlgorithm):
 def main(argv):
     rospy.signal_shutdown("MainLoop")
     #Use the Python reflection API to run the suitable NBV class
-    getattr(sys.modules[__name__], argv[3])()
+    classToLaunch = argv[3]
+    getattr(sys.modules[__name__], classToLaunch)()
     return 0
 
 if __name__ == "__main__":
