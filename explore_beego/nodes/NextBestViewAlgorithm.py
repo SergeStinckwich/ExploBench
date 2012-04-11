@@ -2,13 +2,15 @@
 """
 usage:
 rosrun explore_beego NextBestViewAlgorithm.py XXXNBVAlgorithm
+
+http://ros.org/doc/api/visualization_msgs/html/msg/Marker.html
+http://www.ros.org/doc/api/move_base_msgs/html/msg/MoveBaseGoal.html
 """
 
 import sys
 import array
 import random
 import math
-import threading
 from abc import ABCMeta, abstractmethod
 # ROS import
 import roslib
@@ -18,12 +20,13 @@ roslib.load_manifest('nav_msgs')
 roslib.load_manifest('visualization_msgs')
 roslib.load_manifest('move_base')
 import rospy
-import nav_msgs
 import actionlib
+from nav_msgs.srv import GetPlan
 from visualization_msgs.msg import Marker
 from move_base_msgs.msg import MoveBaseAction
+from move_base_msgs.msg import MoveBaseGoal
 
-class NextBestViewAlgorithm(threading.Thread):
+class NextBestViewAlgorithm(object):
     """Abstract class for NBV algorithms"""
     __metaclass__ = ABCMeta
     # contains the different candidates positions for exploration
@@ -35,7 +38,6 @@ class NextBestViewAlgorithm(threading.Thread):
     maxPourcentageofCoverage = 0.90
 
     def __init__(self):
-        threading.Thread.__init__(self)
         rospy.init_node("NBV%s"%self.className)
         rospy.Subscriber('visualization_marker', Marker, self.handle_markers)
         self.client = actionlib.SimpleActionClient('/move_base', MoveBaseAction)
@@ -73,8 +75,7 @@ class NextBestViewAlgorithm(threading.Thread):
 
             # Creates a goal to send to the action server.
             goal = MoveBaseGoal()
-            goal.target_pose.pose.position.x = bestCandidate[0]
-            goal.target_pose.pose.position.y = bestCandidate[1]
+            goal.target_pose.pose = bestCandidate
 
             # Sends the goal to the action server.
             self.client.send_goal(goal)
@@ -96,14 +97,16 @@ class NextBestViewAlgorithm(threading.Thread):
 class RandomNBVAlgorithm(NextBestViewAlgorithm):
     """Move the robot to a randomly choosen candidate"""
     def chooseBestCandidate(self):
-        self.bestCandidate = random.choice(candidates)
+        self.bestCandidate = random.choice(self.candidates.values())
 
 class MinimumLengthNBVAlgorithm(NextBestViewAlgorithm):
-    """Exploration algorithm that use the criteria of length of the minimum collision-free path to candidate"""
+    """Exploration algorithm that use the criteria of length
+    of the minimum collision-free path to candidate"""
     
     def distanceBetweenPose(self, pose1, pose2):
         """Compute the euclidian distance between 2 poses"""
-        return sqrt(pow(pose2.position.x-pose1.position.x, 2) + pow(pose2.position.y-pose1.position.y, 2))
+        return sqrt(pow(pose2.position.x-pose1.position.x, 2) +
+                    pow(pose2.position.y-pose1.position.y, 2))
 
     def computePathLength(self, plan):
         """Compute the length path with the poses of the plan"""
@@ -118,13 +121,13 @@ class MinimumLengthNBVAlgorithm(NextBestViewAlgorithm):
         #Wait for the availability of this service
         rospy.wait_for_service('make_plan')
         #Get a proxy to execute the service
-        make_plan = rospy.ServiceProxy('make_plan', nav_msgs.srv.GetPlan)
+        make_plan = rospy.ServiceProxy('make_plan', GetPlan)
 
         bestCandidate = None
         shortestLength = 0
         firstCandidate = True
         #Find the candidate with the shortest path
-        for eachCandidate in candidates: 
+        for eachCandidate in self.candidates.values():
             #Execute service for each candidates
             plan = make_plan(eachCandidate)
             #Compute the length of the path
@@ -169,12 +172,15 @@ class MCDMPrometheeNBVAlgorithm(NextBextViewAlgorithm):
         shouldBeImplemented
 
 def main(argv):
+    if len(argv) < 2:
+        sys.stderr.write(__doc__)
+        return 1
+
     #Use the Python reflection API to run the suitable NBV class
     classToLaunch = argv[1]
     print(classToLaunch)
-    instance = getattr(sys.modules[__name__], classToLaunch)()
-    instance.start()
-    rospy.spin()
+    nbv = getattr(sys.modules[__name__], classToLaunch)()
+    nbv.run()
     return 0
 
 if __name__ == "__main__":
