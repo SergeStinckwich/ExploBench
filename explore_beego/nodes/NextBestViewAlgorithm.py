@@ -10,7 +10,7 @@ roslib.load_manifest('nav_msgs')
 roslib.load_manifest('geometry_msgs')
 roslib.load_manifest('actionlib')
 import rospy
-from nav_msgs.msg import OccupancyGrid
+import nav_msgs
 from geometry_msgs.msg import Twist
 import sys
 import array
@@ -60,7 +60,7 @@ class NextBestViewAlgorithm:
 
     def __init__(self):
         rospy.init_node('NextBestViewAlgorithm:'+self.className)
-        rospy.Subscriber('/map', OccupancyGrid, self.loop)
+        rospy.Subscriber('/map', nav_msgs.msg.OccupancyGrid, self.loop)
         self.client = actionlib.SimpleActionClient('/move_base', MoveBaseAction)
         
         # Waits until the action server has started up and started
@@ -79,7 +79,23 @@ class MinimumLengthNBVAlgorithm(NextBEstViewAlgorithm):
     """Length of the minimum collision-free path to candidate"""
     
     def chooseBestCandidate(self):
-        pass
+        #Wait for the availability of this service
+        rospy.wait_for_service('make_plan')
+        #Get a proxy to execute the service
+        make_plan = rospy.ServiceProxy('make_plam', nav_msgs.srv.GetPlan)
+
+        bestCandidate = None
+        shortestLength = 0
+        #Find the candidate with the shortest path
+        for eachCandidate in candidates: 
+            #Execute service for each candidates
+            plan = make_plan(eachCandidate)
+            #Compute the length of the path
+            pathLenght = shouldbeImplemented
+            #If the shortest path until now
+            if pathLength < shortestLength:
+                bestCandidate = eachCandidate
+                shortestLength = pathLength
 
     def className(self):
         return('MinimumLengthNBVAlgorithm')
