@@ -17,6 +17,7 @@ import array
 import random
 from perimeter import known_perimeter
 import actionlib
+import math
 
 class NextBestViewAlgorithm:
     """Abstract class for NBV algorithms"""
@@ -82,9 +83,18 @@ class RandomNBVAlgorithm(NextBestViewAlgorithm):
 class MinimumLengthNBVAlgorithm(NextBEstViewAlgorithm):
     """Exploration algorithm that use the criteria of length of the minimum collision-free path to candidate"""
     
-    def computePath(plan):
+    def distanceBetweenPose(pose1, pose2):
+        """Compute the euclidian distance between 2 poses"""
+        return sqrt(pow(pose2.position.x-pose1.position.x, 2) + pow(pose2.position.y-pose1.position.y, 2))
+
+    def computePathLength(plan):
         """Compute the length path with the poses of the plan"""
-        return 0
+        poses = plan.poses
+        pathLength = 0
+        #Iteration among along the poses in order to compute the length
+        for index in range(1, len(poses)):
+            pathLength = pathLength + distanceBetweenPose(pose[index-1], pose[index])
+        return pathLength
 
     def chooseBestCandidate(self):
         #Wait for the availability of this service
@@ -100,7 +110,7 @@ class MinimumLengthNBVAlgorithm(NextBEstViewAlgorithm):
             #Execute service for each candidates
             plan = make_plan(eachCandidate)
             #Compute the length of the path
-            pathLenght = computePath(plan)
+            pathLength = computePathLength(plan)
             #Set the shortestPath for the first candidate
             if firstCandidate:
                 shortestPath = pathLength
