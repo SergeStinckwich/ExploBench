@@ -19,9 +19,11 @@ poses = {}
 def handle(msg):
     #if not msg.id in poses: print(msg.pose)
     if msg.action == Marker.DELETE:
-        print("Marker.DELETE: " + msg.id)
-        #poses[msg.id] = None
-        poses.pop(msg.id)
+        if not msg.id in poses:
+            print("error: Marker.DELETE: not a key: %i !!!!!!!!!!!!!!!"%msg.id)
+        else:
+            poses.pop(msg.id)
+            print("info:  Marker.DELETE: %i <<<<<<<<<<<<<<<<<<<<<<<<<<"%msg.id)
     else:
         poses[msg.id] = msg.pose
     print(poses)
