@@ -156,8 +156,8 @@ class MaxQuantityOfInformationNBVAlgorithm(NextBestViewAlgorithm):
         numberOfUnknownCells = 0
         numberOfKnownCells = 0
         #Iteration in a square with center candidate
-        for i in range(candidate.x-(radius/2):candidate.x+(radius/2)):
-            for j in range(candidate.y-(radius/2):candidate.y+(radius/2)):
+        for i in range(candidate.x-radius:candidate.x+radius):
+            for j in range(candidate.y-radius:candidate.y+radius):
                 #Test that we are in the disk
                 if distance(self,i,j, candidate.x, candidate.y) < radius:
                     if (data[i][j] == -1):
@@ -165,7 +165,7 @@ class MaxQuantityOfInformationNBVAlgorithm(NextBestViewAlgorithm):
                     elif:
                         numberOfKnownCells = numberOfKnownCells + 1
         
-        return numberOfUnknownCells / (numberOfKnownCells + numberOfUnkwonCells)
+        return numberOfUnknownCells / (numberOfKnownCells + numberOfUnknownCells)
 
 class MCDMPrometheeNBVAlgorithm(NextBextViewAlgorithm):
     def chooseBestCandidate(self):
