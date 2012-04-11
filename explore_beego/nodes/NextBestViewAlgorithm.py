@@ -104,6 +104,7 @@ class MinimumLengthNBVAlgorithm(NextBEstViewAlgorithm):
             #Set the shortestPath for the first candidate
             if firstCandidate:
                 shortestPath = pathLength
+                firstCandidate = False
             #If the shortest path until now, we found a new bestCandidate
             if pathLength < shortestLength:
                 bestCandidate = eachCandidate
