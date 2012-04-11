@@ -34,6 +34,12 @@ class NextBestViewAlgorithm(threading.Thread):
     pourcentageOfKnowEnv = 0
     maxPourcentageofCoverage = 0.90
 
+<<<<<<< HEAD
+    def chooseBestCandidate(self):
+        abstract # Override me in derived class
+    
+    def computePourcentageOfKnownEnv(self):
+=======
     def __init__(self):
         threading.Thread.__init__(self)
         rospy.init_node("NBV%s"%self.className)
@@ -57,6 +63,7 @@ class NextBestViewAlgorithm(threading.Thread):
     def chooseBestCandidate(self): pass
 
     def computePourcentageOfKnownEnv():
+>>>>>>> 0552994a886dfe43072c6b6aed956cee9f98b3cb
         nbOfUnknowCells = 0
         for eachCells in data:
             if (eachCells == -1):
@@ -84,6 +91,26 @@ class NextBestViewAlgorithm(threading.Thread):
 
     @property
     def className(self):
+<<<<<<< HEAD
+        abstract
+
+    def loop(self, occupancy_grid):
+        #Loop until we cover a large amount of the env
+        if (pourcentageUnkownEnv < maxPourcentageCoverage):
+            self.occupancy_grid = occupancy_grid
+            self.chooseCandidatesOnFrontier(self)
+            self.chooseBestCandidate(self)
+            self.moveToBestCandidateLocation(self)
+        
+    def __init__(self):
+        rospy.init_node('NextBestViewAlgorithm:'+self.className(self))
+        rospy.Subscriber('/map', nav_msgs.msg.OccupancyGrid, self.loop)
+        self.client = actionlib.SimpleActionClient('/move_base', MoveBaseAction)
+        
+        # Waits until the action server has started up and started
+        # listening for goals.
+        self.client.wait_for_server()
+=======
         return self.__class__.__name__
 
     def handle_markers(self, marker):
@@ -92,6 +119,7 @@ class NextBestViewAlgorithm(threading.Thread):
                 self.candidates.pop(marker.id)
         else:
             self.candidates[marker.id] = marker.pose
+>>>>>>> 0552994a886dfe43072c6b6aed956cee9f98b3cb
 
 class RandomNBVAlgorithm(NextBestViewAlgorithm):
     """Move the robot to a randomly choosen candidate"""
@@ -100,8 +128,12 @@ class RandomNBVAlgorithm(NextBestViewAlgorithm):
 
 class MinimumLengthNBVAlgorithm(NextBestViewAlgorithm):
     """Exploration algorithm that use the criteria of length of the minimum collision-free path to candidate"""
+<<<<<<< HEAD
     
     def distanceBetweenPose(self, pose1, pose2):
+=======
+    def distanceBetweenPose(pose1, pose2):
+>>>>>>> 0552994a886dfe43072c6b6aed956cee9f98b3cb
         """Compute the euclidian distance between 2 poses"""
         return sqrt(pow(pose2.position.x-pose1.position.x, 2) + pow(pose2.position.y-pose1.position.y, 2))
 
@@ -111,7 +143,11 @@ class MinimumLengthNBVAlgorithm(NextBestViewAlgorithm):
         pathLength = 0
         #Iteration among along the poses in order to compute the length
         for index in range(1, len(poses)):
+<<<<<<< HEAD
+            pathLength = pathLength + distanceBetweenPose(self, poses[index-1], poses[index])
+=======
             pathLength += distanceBetweenPose(poses[index-1], poses[index])
+>>>>>>> 0552994a886dfe43072c6b6aed956cee9f98b3cb
         return pathLength
 
     def chooseBestCandidate(self):
@@ -140,6 +176,12 @@ class MinimumLengthNBVAlgorithm(NextBestViewAlgorithm):
                 shortestLength = pathLength
 
 class MaxQuantityOfInformationNBVAlgorithm(NextBestViewAlgorithm):
+<<<<<<< HEAD
+    def className(self):
+        return('MaxQuantityOfInformationNBVAlgorithm')
+    
+=======
+>>>>>>> 0552994a886dfe43072c6b6aed956cee9f98b3cb
     def chhoseBestCandidate(self):
         shouldBeImplemented
     
@@ -164,7 +206,7 @@ class MaxQuantityOfInformationNBVAlgorithm(NextBestViewAlgorithm):
         
         return numberOfUnknownCells / (numberOfKnownCells + numberOfUnknownCells)
 
-class MCDMPrometheeNBVAlgorithm(NextBextViewAlgorithm):
+class MCDMPrometheeNBVAlgorithm(NextBestViewAlgorithm):
     def chooseBestCandidate(self):
         shouldBeImplemented
 
