@@ -69,7 +69,7 @@ class NextBestViewAlgorithm:
             self.client.waitForResult()
         
     def className(self):
-        shouldBeImplemented
+        abstract
 
     def loop(self, occupancy_grid):
         #Loop until we cover a large amount of the env
