@@ -36,18 +36,22 @@ class NextBestViewAlgorithm:
         
     def moveToBestCandidateLocation(self):
         """Use the navigation stack to move to the goal"""
-        rospy.loginfo("Sending goal")
 
-        # Creates a goal to send to the action server.
-        goal = MoveBaseGoal()
-        goal.target_pose.pose.position.x = bestCandidate[0]
-        goal.target_pose.pose.position.y = bestCandidate[1]
-
-        # Sends the goal to the action server.
-        self.client.send_goal(goal)
+        if bestCandidate = None:
+            rospy.loginfo('No best candidate')
+        elif:
+            rospy.loginfo('Move to best candidate')
+            
+            # Creates a goal to send to the action server.
+            goal = MoveBaseGoal()
+            goal.target_pose.pose.position.x = bestCandidate[0]
+            goal.target_pose.pose.position.y = bestCandidate[1]
+            
+            # Sends the goal to the action server.
+            self.client.send_goal(goal)
     
-        # Waits for the server to finish performing the action.
-        self.client.waitForResult()
+            # Waits for the server to finish performing the action.
+            self.client.waitForResult()
         
     def className(self):
         shouldBeImplemented
