@@ -32,7 +32,6 @@ class NextBestViewAlgorithm:
     def chooseBestCandidate(self):
         abstract # Override me in derived class
     
-
     def computePourcentageOfKnownEnv(self):
         nbOfUnknowCells = 0
         for eachCells in data:
@@ -147,8 +146,26 @@ class MaxQuantityOfInformationNBVAlgorithm(NextBestViewAlgorithm):
     def chhoseBestCandidate(self):
         shouldBeImplemented
     
-    def quantityOfNewInformation(self):
+    def distance(self, x1,y1,x2,y2):
+        return sqrt(pow(x2-x1, 2) + pow(y2-y1, 2))
 
+    def quantityOfNewInformation(self, candidate):
+        #Compute the pourcentage of new information for a candidate
+        # radius = How to have acess to the perception radius ???
+        data = self.occupancy_grid.data
+        numberOfUnknownCells = 0
+        numberOfKnownCells = 0
+        #Iteration in a square with center candidate
+        for i in range(candidate.x-(radius/2):candidate.x+(radius/2)):
+            for j in range(candidate.y-(radius/2):candidate.y+(radius/2)):
+                #Test that we are in the disk
+                if distance(self,i,j, candidate.x, candidate.y) < radius:
+                    if (data[i][j] == -1):
+                        numberOfUnknownCells = numberOfUnknownCells + 1
+                    elif:
+                        numberOfKnownCells = numberOfKnownCells + 1
+        
+        return numberOfUnknownCells / (numberOfKnownCells + numberOfUnkwonCells)
 
 class MCDMPrometheeNBVAlgorithm(NextBextViewAlgorithm):
     def chooseBestCandidate(self):
