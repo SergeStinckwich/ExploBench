@@ -82,6 +82,10 @@ class RandomNBVAlgorithm(NextBestViewAlgorithm):
 class MinimumLengthNBVAlgorithm(NextBEstViewAlgorithm):
     """Length of the minimum collision-free path to candidate"""
     
+    def computePath(plan):
+        """Compute the length path with the poses of the plan"""
+        return 0
+
     def chooseBestCandidate(self):
         #Wait for the availability of this service
         rospy.wait_for_service('make_plan')
@@ -90,13 +94,17 @@ class MinimumLengthNBVAlgorithm(NextBEstViewAlgorithm):
 
         bestCandidate = None
         shortestLength = 0
+        firstCandidate = True
         #Find the candidate with the shortest path
         for eachCandidate in candidates: 
             #Execute service for each candidates
             plan = make_plan(eachCandidate)
             #Compute the length of the path
-            pathLenght = shouldbeImplemented
-            #If the shortest path until now
+            pathLenght = computePath(plan)
+            #Set the shortestPath for the first candidate
+            if firstCandidate:
+                shortestPath = pathLength
+            #If the shortest path until now, we found a new bestCandidate
             if pathLength < shortestLength:
                 bestCandidate = eachCandidate
                 shortestLength = pathLength
