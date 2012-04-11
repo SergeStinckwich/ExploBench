@@ -33,7 +33,7 @@ class NextBestViewAlgorithm:
         abstract # Override me in derived class
     
 
-    def computePourcentageOfKnownEnv():
+    def computePourcentageOfKnownEnv(self):
         nbOfUnknowCells = 0
         for eachCells in data:
             if (eachCells == -1):
@@ -76,11 +76,11 @@ class NextBestViewAlgorithm:
         if (pourcentageUnkownEnv < maxPourcentageCoverage):
             self.occupancy_grid = occupancy_grid
             self.chooseCandidatesOnFrontier(self)
-            self.chooseBestCandidate()
-            self.moveToBestCandidateLocation()
+            self.chooseBestCandidate(self)
+            self.moveToBestCandidateLocation(self)
         
     def __init__(self):
-        rospy.init_node('NextBestViewAlgorithm:'+self.className)
+        rospy.init_node('NextBestViewAlgorithm:'+self.className(self))
         rospy.Subscriber('/map', nav_msgs.msg.OccupancyGrid, self.loop)
         self.client = actionlib.SimpleActionClient('/move_base', MoveBaseAction)
         
@@ -99,17 +99,17 @@ class RandomNBVAlgorithm(NextBestViewAlgorithm):
 class MinimumLengthNBVAlgorithm(NextBEstViewAlgorithm):
     """Exploration algorithm that use the criteria of length of the minimum collision-free path to candidate"""
     
-    def distanceBetweenPose(pose1, pose2):
+    def distanceBetweenPose(self, pose1, pose2):
         """Compute the euclidian distance between 2 poses"""
         return sqrt(pow(pose2.position.x-pose1.position.x, 2) + pow(pose2.position.y-pose1.position.y, 2))
 
-    def computePathLength(plan):
+    def computePathLength(self, plan):
         """Compute the length path with the poses of the plan"""
         poses = plan.poses
         pathLength = 0
         #Iteration among along the poses in order to compute the length
         for index in range(1, len(poses)):
-            pathLength = pathLength + distanceBetweenPose(poses[index-1], poses[index])
+            pathLength = pathLength + distanceBetweenPose(self, poses[index-1], poses[index])
         return pathLength
 
     def chooseBestCandidate(self):
@@ -143,8 +143,12 @@ class MinimumLengthNBVAlgorithm(NextBEstViewAlgorithm):
 class MaxQuantityOfInformationNBVAlgorithm(NextBestViewAlgorithm):
     def className(self):
         return('MaxQuantityOfInformationNBVAlgorithm')
+    
     def chhoseBestCandidate(self):
         shouldBeImplemented
+    
+    def quantityOfNewInformation(self):
+
 
 class MCDMPrometheeNBVAlgorithm(NextBextViewAlgorithm):
     def chooseBestCandidate(self):
