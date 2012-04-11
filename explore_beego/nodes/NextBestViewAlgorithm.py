@@ -27,6 +27,7 @@ class NextBestViewAlgorithm:
     occupancy_grid = None
     client = None
     pourcentageOfKnowEnv = 0
+    maxPourcentageofCoverage = 0.90
 
     def chooseBestCandidate(self):
         abstract # Override me in derived class
@@ -71,11 +72,13 @@ class NextBestViewAlgorithm:
         shouldBeImplemented
 
     def loop(self, occupancy_grid):
-        self.occupancy_grid = occupancy_grid
-        self.chooseCandidatesOnFrontier(self)
-        self.chooseBestCandidate()
-        self.moveToBestCandidateLocation()
-
+        #Loop until we cover a large amount of the env
+        if (pourcentageUnkownEnv < maxPourcentageCoverage):
+            self.occupancy_grid = occupancy_grid
+            self.chooseCandidatesOnFrontier(self)
+            self.chooseBestCandidate()
+            self.moveToBestCandidateLocation()
+        
     def __init__(self):
         rospy.init_node('NextBestViewAlgorithm:'+self.className)
         rospy.Subscriber('/map', nav_msgs.msg.OccupancyGrid, self.loop)
