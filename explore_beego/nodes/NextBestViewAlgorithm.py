@@ -15,9 +15,10 @@ from geometry_msgs.msg import Twist
 import sys
 import array
 import random
-from perimeter import known_perimeter
 import actionlib
 import math
+
+from perimeter import known_perimeter
 
 class NextBestViewAlgorithm:
     """Abstract class for NBV algorithms"""
@@ -100,7 +101,7 @@ class MinimumLengthNBVAlgorithm(NextBEstViewAlgorithm):
         #Wait for the availability of this service
         rospy.wait_for_service('make_plan')
         #Get a proxy to execute the service
-        make_plan = rospy.ServiceProxy('make_plam', nav_msgs.srv.GetPlan)
+        make_plan = rospy.ServiceProxy('make_plan', nav_msgs.srv.GetPlan)
 
         bestCandidate = None
         shortestLength = 0
@@ -123,6 +124,12 @@ class MinimumLengthNBVAlgorithm(NextBEstViewAlgorithm):
 
     def className(self):
         return('MinimumLengthNBVAlgorithm')
+
+class MaxQuantityOfInformationNBVAlgorithm(NextBestViewAlgorithm):
+    def className(self):
+        return('MaxQuantityOfInformationNBVAlgorithm')
+    def chhoseBestCandidate(self):
+        shouldBeImplemented
 
 class MCDMPrometheeNBVAlgorithm(NextBextViewAlgorithm):
     def chooseBestCandidate(self):
