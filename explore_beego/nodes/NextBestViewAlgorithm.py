@@ -12,9 +12,7 @@ roslib.load_manifest('actionlib')
 import rospy
 from nav_msgs.msg import OccupancyGrid
 from geometry_msgs.msg import Twist
-import wx
 import sys
-import threading
 import array
 import random
 from perimeter import known_perimeter
@@ -76,6 +74,15 @@ class RandomNBVAlgorithm(NextBestViewAlgorithm):
     
     def className(self):
         return('RandomNBVAlgorithm')
+
+class MinimumLengthNBVAlgorithm(NextBEstViewAlgorithm):
+    """Length of the minimum collision-free path to candidate"""
+    
+    def chooseBestCandidate(self):
+        pass
+
+    def className(self):
+        return('MinimumLengthNBVAlgorithm')
 
 class MCDMPrometheeNBVAlgorithm(NextBextViewAlgorithm):
     def chooseBestCandidate(self):
