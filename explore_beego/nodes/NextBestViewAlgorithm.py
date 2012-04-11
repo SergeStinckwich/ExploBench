@@ -94,7 +94,7 @@ class MinimumLengthNBVAlgorithm(NextBEstViewAlgorithm):
         pathLength = 0
         #Iteration among along the poses in order to compute the length
         for index in range(1, len(poses)):
-            pathLength = pathLength + distanceBetweenPose(pose[index-1], pose[index])
+            pathLength = pathLength + distanceBetweenPose(poses[index-1], poses[index])
         return pathLength
 
     def chooseBestCandidate(self):
