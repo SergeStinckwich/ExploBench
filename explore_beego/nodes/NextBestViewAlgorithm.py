@@ -26,14 +26,26 @@ class NextBestViewAlgorithm:
     bestCandidate = None
     occupancy_grid = None
     client = None
+    pourcentageOfKnowEnv = 0
 
     def chooseBestCandidate(self):
         abstract # Override me in derived class
-        
+    
+
+    def computePourcentageOfKnownEnv():
+        nbOfUnknowCells = 0
+        for eachCells in data:
+            if (eachCells == -1):
+                nbOfUnknownCells = nbOfUnknowCells + 1
+        self.pourcentageOfKnownEnv = 1 - (nbOfUnknownCells / len(data))
+
     def chooseCandidatesOnFrontier(self):
         data = self.occupancy_grid.data
         height = self.occupancy_grid.info.height
         width = self.occupancy_grid.info.width
+        #Update % of known env vs unknown env
+        self.computePourcentageOfKnownEnv()
+        #Compute candidates on the frontier
         candidates = known_perimeter(data, width, height)
         
     def moveToBestCandidateLocation(self):
