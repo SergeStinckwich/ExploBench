@@ -14,19 +14,16 @@ roslib.load_manifest('visualization_msgs')
 import rospy
 from visualization_msgs.msg import Marker
 
-poses = {}
+# contains the different candidates positions for exploration
+# dictionnary: id (int32) -> pose (geometry_msgs/Pose)
+candidates = {}
 
 def handle(msg):
-    #if not msg.id in poses: print(msg.pose)
     if msg.action == Marker.DELETE:
-        if not msg.id in poses:
-            print("error: Marker.DELETE: not a key: %i !!!!!!!!!!!!!!!"%msg.id)
-        else:
-            poses.pop(msg.id)
-            print("info:  Marker.DELETE: %i <<<<<<<<<<<<<<<<<<<<<<<<<<"%msg.id)
+        if msg.id in candidates:
+            candidates.pop(msg.id)
     else:
-        poses[msg.id] = msg.pose
-    print(poses)
+        candidates[msg.id] = msg.pose
 
 if __name__ == '__main__':
     rospy.init_node('marker')
