@@ -80,7 +80,7 @@ class RandomNBVAlgorithm(NextBestViewAlgorithm):
         return('RandomNBVAlgorithm')
 
 class MinimumLengthNBVAlgorithm(NextBEstViewAlgorithm):
-    """Length of the minimum collision-free path to candidate"""
+    """Exploration algorithm that use the criteria of length of the minimum collision-free path to candidate"""
     
     def computePath(plan):
         """Compute the length path with the poses of the plan"""
