@@ -218,8 +218,9 @@ class MCDMPrometheeNBVAlgorithm(NextBestViewAlgorithm):
         c = []
         for eachCandidate in candidates:
             #Compute distance between robot and candidate
-            start = PoseStamped() # XXX robot pose!
+            start = PoseStamped() 
             start.header.frame_id = "map"
+            start.pose = self.robot_pose
             goal = PoseStamped()
             goal.header.frame_id = "map"
             tolerance = 0.0
