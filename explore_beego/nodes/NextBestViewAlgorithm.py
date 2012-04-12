@@ -112,29 +112,38 @@ class NextBestViewAlgorithm(object):
             return 0
         data = self.occupancy_grid.data
         width = self.occupancy_grid.info.width
+        height = self.occupancy_grid.info.height
         resolution = self.occupancy_grid.info.resolution
-        numberOfUnknownCells = 0
-        numberOfKnownCells = 0
+        numberOfUnknownCells = 0.0
+        numberOfKnownCells = 0.0
         origin_position = self.occupancy_grid.info.origin.position
-        relative_radius = int(self.radius * resolution)
-        relative_position_x = int((candidate.position.x - origin_position.x) *
+        relative_radius = int(5 / resolution) # self.raduis not same of explore
+        # 5 = laser range for explore, see explore_costmap.yaml
+        relative_position_x = int((candidate.position.x - origin_position.x) /
                                    resolution)
-        relative_position_y = int((candidate.position.y - origin_position.y) *
+        relative_position_y = int((candidate.position.y - origin_position.y) /
                                    resolution)
 
         # http://ros.org/doc/electric/api/nav_msgs/html/msg/OccupancyGrid.html
         # scale and origin
         #Iteration in a square with center candidate
-        for i in range(relative_position_x - relative_radius, relative_position_x + relative_radius):
-            for j in range(relative_position_y - relative_radius, relative_position_y + relative_radius):
+        scan_min_x = max(relative_position_x - relative_radius, 0)
+        scan_min_y = max(relative_position_y - relative_radius, 0)
+        scan_max_x = min(relative_position_x + relative_radius, width)
+        scan_max_y = min(relative_position_y + relative_radius, height)
+        print("%i %i %i %i"%(scan_min_x,scan_min_y,scan_max_x,scan_max_y))
+
+        for i in range(scan_min_x, scan_max_x):
+            for j in range(scan_min_y, scan_max_y):
                 #Test that we are in the disk
                 if self.distance(i, j, relative_position_x, relative_position_y) < relative_radius:
                     data_pose = j * width + i
                     if (data[data_pose] == -1):
-                        numberOfUnknownCells = numberOfUnknownCells + 1
+                        numberOfUnknownCells += 1
                     else:
-                        numberOfKnownCells = numberOfKnownCells + 1
+                        numberOfKnownCells += 1
 
+        print("numberOfKnownCells: %i numberOfUnknownCells: %i"%(numberOfKnownCells, numberOfUnknownCells))
         return numberOfUnknownCells / (numberOfKnownCells + numberOfUnknownCells)
 
     def moveToBestCandidateLocation(self):
@@ -169,7 +178,6 @@ class NextBestViewAlgorithm(object):
             self.candidates[marker.id] = marker.pose
 
     def handle_occupancy_grid(self, msg):
-        print("new occupancy_grid")
         self.occupancy_grid = msg
 
     def handle_laserscan(self, msg):
@@ -235,6 +243,7 @@ class MaxQuantityOfInformationNBVAlgorithm(NextBestViewAlgorithm):
         maxQuantityOfInformation = 0.0
         for eachCandidate in self.candidates.values():
             q = self.quantityOfNewInformation(eachCandidate)
+            print("quantityOfNewInformation: %f"%q)
             if q > maxQuantityOfInformation:
                 maxQuantityOfInformation = q
                 self.bestCandidate = eachCandidate
