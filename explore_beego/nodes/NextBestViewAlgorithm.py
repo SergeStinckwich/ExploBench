@@ -21,6 +21,7 @@ roslib.load_manifest('visualization_msgs')
 roslib.load_manifest('move_base')
 roslib.load_manifest('nav_msgs')
 roslib.load_manifest('geometry_msgs')
+roslib.load_manifest('sensor_msgs')
 import rospy
 import actionlib
 from nav_msgs.srv import GetPlan
@@ -29,7 +30,9 @@ from move_base_msgs.msg import MoveBaseAction
 from move_base_msgs.msg import MoveBaseGoal
 from nav_msgs.msg import OccupancyGrid
 from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import Pose
 from nav_msgs.msg import Odometry
+from sensor_msgs.msg import LaserScan
 
 import PyMCDA
 
@@ -44,12 +47,19 @@ class NextBestViewAlgorithm(object):
     pourcentageOfKnowEnv = 0
     maxPourcentageofCoverage = 0.90
     robot_pose = None
+    occupancy_grid = None
+    distance_traveled = 0.0
+    robot_last_pose = None
+    radius = None
+    subscriber_laser_once = None
 
     def __init__(self):
         rospy.init_node("NBV%s"%self.className)
         rospy.Subscriber('visualization_marker', Marker, self.handle_markers)
-        rospy.Subscriber('map', OccupancyGrid, self.handle_occupancy_grid)
+        rospy.Subscriber('explore/map', OccupancyGrid, self.handle_occupancy_grid)
         rospy.Subscriber('odom', Odometry, self.handle_odom)
+        sub_once = None
+        self.subscriber_laser_once = rospy.Subscriber('base_scan', LaserScan, self.handle_laserscan)
         self.client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
 
     def run(self):
@@ -69,7 +79,10 @@ class NextBestViewAlgorithm(object):
     def chooseBestCandidate(self): pass
 
     def computePourcentageOfKnownEnv():
-        nbOfUnknowCells = 0
+        if not self.occupancy_grid:
+            return 0
+        data = self.occupancy_grid.data
+        nbOfUnknownCells = 0
         for eachCells in data:
             if (eachCells == -1):
                 nbOfUnknownCells = nbOfUnknowCells + 1
@@ -78,7 +91,7 @@ class NextBestViewAlgorithm(object):
     def distanceBetweenPose(self, pose1, pose2):
         """Compute the euclidian distance between 2 poses"""
         return math.sqrt(pow(pose2.position.x-pose1.position.x, 2) +
-                    pow(pose2.position.y-pose1.position.y, 2))
+                         pow(pose2.position.y-pose1.position.y, 2))
 
     def computePathLength(self, plan):
         """Compute the length path with the poses of the plan"""
@@ -90,19 +103,28 @@ class NextBestViewAlgorithm(object):
         return pathLength
 
     def distance(self, x1, y1, x2, y2):
-        return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2))
+        return math.sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2))
 
     def quantityOfNewInformation(self, candidate):
         # Compute the pourcentage of new information for a candidate
         # TODO: get radius from laser scan topic
+        if not self.occupancy_grid:
+            return 0
         data = self.occupancy_grid.data
+        resolution = self.occupancy_grid.info.resolution
         numberOfUnknownCells = 0
         numberOfKnownCells = 0
+        print("radius "+str(self.radius))
+        print("resolution "+str(resolution))
+        print("candidate.position "+str(candidate.position))
+        return 0
+        # TODO http://ros.org/doc/electric/api/nav_msgs/html/msg/OccupancyGrid.html
+        # scale and origin
         #Iteration in a square with center candidate
-        for i in range(candidate.x - radius, candidate.x + radius):
-            for j in range(candidate.y - radius, candidate.y + radius):
+        for i in range(candidate.position.x - self.radius, candidate.position.x + self.radius):
+            for j in range(candidate.position.y - self.radius, candidate.position.y + self.radius):
                 #Test that we are in the disk
-                if distance(self,i,j, candidate.x, candidate.y) < radius:
+                if distance(self,i,j, candidate.position.x, candidate.position.y) < self.radius:
                     if (data[i][j] == -1):
                         numberOfUnknownCells = numberOfUnknownCells + 1
                     else:
@@ -128,7 +150,7 @@ class NextBestViewAlgorithm(object):
             self.client.send_goal(goal)
 
             # Waits for the server to finish performing the action.
-            self.client.wait_for_result()#rospy.Duration.from_sec(5.0))
+            self.client.wait_for_result() # timeout: rospy.Duration.from_sec(5.0)
 
     @property
     def className(self):
@@ -142,10 +164,23 @@ class NextBestViewAlgorithm(object):
             self.candidates[marker.id] = marker.pose
 
     def handle_occupancy_grid(self, msg):
+        print("new occupancy_grid")
         self.occupancy_grid = msg
 
+    def handle_laserscan(self, msg):
+        self.radius = msg.range_max
+        self.subscriber_laser_once.unregister()
+        self.subscriber_laser_once = None
+
     def handle_odom(self, msg):
+        if not self.robot_last_pose:
+            self.robot_last_pose = msg.pose.pose
+            return 
         self.robot_pose = msg.pose.pose
+        # diff
+        self.distance_traveled += self.distanceBetweenPose(self.robot_pose, 
+                                                    self.robot_last_pose)
+        self.robot_last_pose = self.robot_pose
 
 class RandomNBVAlgorithm(NextBestViewAlgorithm):
     """Move the robot to a randomly choosen candidate"""
@@ -210,30 +245,36 @@ class MCDMPrometheeNBVAlgorithm(NextBestViewAlgorithm):
                           'QuantiteOfInformation' : PyMCDA.LinearPreferenceFunction(60,10)} 
 
     def chooseBestCandidate(self):
-        # Wait for the availability of this service
+        #Wait for the availability of this service
         rospy.wait_for_service('move_base/make_plan')
-        # Get a proxy to execute the service
+        #Get a proxy to execute the service
         make_plan = rospy.ServiceProxy('move_base/make_plan', GetPlan)
+
+        self.bestCandidate = None
+        start = PoseStamped()
+        start.header.frame_id = "map"
+        start.pose = self.robot_pose
+        goal = PoseStamped()
+        goal.header.frame_id = "map"
+        tolerance = 0.0
         # Evaluation of each candidates for each criteria used
-        c = []
-       for eachCandidate in self.candidates.values():
-            #Compute distance between robot and candidate
-            start = PoseStamped()
-            start.header.frame_id = "map"
-            start.pose = self.robot_pose
-            goal = PoseStamped()
-            goal.header.frame_id = "map"
-            tolerance = 0.0
+        c = []        #Find the candidate with the shortest path
+        for eachCandidate in self.candidates.values():
+            #Execute service for each candidates
+            goal.pose = eachCandidate
             plan_response = make_plan(start = start, goal = goal, tolerance = tolerance)
-            distance = computePathLength(plan_response.plan)
+            #Compute the length of the path
+            distance = self.computePathLength(plan_response.plan)
             # Compute new quantity of information criteria for the candidate
-            qi = quantityOfInformation(eachCandidate)
+            qi = self.quantityOfNewInformation(eachCandidate)
             # We negated Distance because we want to minimize this criteria
-            c.append({'Distance': - distance, 'QuantityOfInformation': qi})
+            c.append({'Distance': - distance, 'QuantityOfInformation': qi * 100, 'pose':eachCandidate})
         # Suppresion of candidates that are not on Pareto front
         filteredCandidates = PyMCDA.paretoFilter(c, self.criteria) 
-        self.bestCandidate = PyMCDA.decision(filteredCandidates, self.criteria, self.weights, self.preferenceFunction)
-        print(' PROMETHEE II decision: ', self.bestCandidate)
+        decision = PyMCDA.decision(filteredCandidates, self.criteria, 
+                                   self.weights, self.preferenceFunction)
+        if decision:
+            self.bestCandidate = decision['pose']
 
 def main(argv):
     if len(argv) < 2:

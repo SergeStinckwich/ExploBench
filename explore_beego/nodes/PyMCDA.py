@@ -156,6 +156,7 @@ def decision(candidats, criteres, poidsCrit, fctPrefCrit):
 		return candidats[0]
 	first = True
 	outRankingMax = 0
+	bestCandidate = None
 	for cand1 in candidats:
 		outRankingPlus = 0
 		outRankingMoins = 0
@@ -210,30 +211,30 @@ def paretoInf(candidate1, candidate2, criteria):
 			equals = equals + 1
 	return equals < len(criteria)
 		
-#if __name__ == "__main__":
+if __name__ == "__main__":
 #	unittest.main()
 
-print("Decision done by PROMETHEE method")
+	print("Decision done by PROMETHEE method")
 
-#Noms des criteres utilises
-criteria = ['distance', 'quantiteInfo']
+	#Noms des criteres utilises
+	criteria = ['distance', 'quantiteInfo']
 
-#poids des criteres utilises
-weights = {'distance': 0.6, 'quantiteInfo' : 0.4}
+	#poids des criteres utilises
+	weights = {'distance': 0.6, 'quantiteInfo' : 0.4}
 
-#fonction de preference utilisee (voir article pour typologie)
-fctPrefCrit = {'distance': GaussianPreferenceFunction(10), 'quantiteInfo' : LinearPreferenceFunction(60,10)} 
+	#fonction de preference utilisee (voir article pour typologie)
+	fctPrefCrit = {'distance': GaussianPreferenceFunction(10), 'quantiteInfo' : LinearPreferenceFunction(60,10)} 
 
-#eval des candidats pour chacun des criteres utilises (distance negative, car plus c'est faible mieux c'est)
-candidates = []
-candidates.append({'distance': -50, 'quantiteInfo' : 50})
-candidates.append({'distance': -100, 'quantiteInfo' : 20})
-candidates.append({'distance': -20, 'quantiteInfo' : 5})
-candidates.append({'distance': -75, 'quantiteInfo' : 100})
-candidates.append({'distance': -30, 'quantiteInfo' : 5})
+	#eval des candidats pour chacun des criteres utilises (distance negative, car plus c'est faible mieux c'est)
+	candidates = []
+	candidates.append({'distance': -50, 'quantiteInfo' : 50})
+	candidates.append({'distance': -100, 'quantiteInfo' : 20})
+	candidates.append({'distance': -20, 'quantiteInfo' : 5})
+	candidates.append({'distance': -75, 'quantiteInfo' : 100})
+	candidates.append({'distance': -30, 'quantiteInfo' : 5})
 
-#permet de supprimer les candidats ne se trouvant pas sur le front de Pareto
-filteredCandidates = paretoFilter(candidates,criteria) 
-print('Filter: ', filteredCandidates)
+	#permet de supprimer les candidats ne se trouvant pas sur le front de Pareto
+	filteredCandidates = paretoFilter(candidates,criteria) 
+	print('Filter: ', filteredCandidates)
 
-print('Decision: ', decision(filteredCandidates, criteria, weights, fctPrefCrit))
+	print('Decision: ', decision(filteredCandidates, criteria, weights, fctPrefCrit))
