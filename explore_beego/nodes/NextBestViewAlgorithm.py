@@ -111,25 +111,30 @@ class NextBestViewAlgorithm(object):
         if not self.occupancy_grid:
             return 0
         data = self.occupancy_grid.data
+        width = self.occupancy_grid.info.width
         resolution = self.occupancy_grid.info.resolution
         numberOfUnknownCells = 0
         numberOfKnownCells = 0
-        print("radius "+str(self.radius))
-        print("resolution "+str(resolution))
-        print("candidate.position "+str(candidate.position))
-        return 0
-        # TODO http://ros.org/doc/electric/api/nav_msgs/html/msg/OccupancyGrid.html
+        origin_position = self.occupancy_grid.info.origin.position
+        relative_radius = int(self.radius * resolution)
+        relative_position_x = int((candidate.position.x - origin_position.x) *
+                                   resolution)
+        relative_position_y = int((candidate.position.y - origin_position.y) *
+                                   resolution)
+
+        # http://ros.org/doc/electric/api/nav_msgs/html/msg/OccupancyGrid.html
         # scale and origin
         #Iteration in a square with center candidate
-        for i in range(candidate.position.x - self.radius, candidate.position.x + self.radius):
-            for j in range(candidate.position.y - self.radius, candidate.position.y + self.radius):
+        for i in range(relative_position_x - relative_radius, relative_position_x + relative_radius):
+            for j in range(relative_position_y - relative_radius, relative_position_y + relative_radius):
                 #Test that we are in the disk
-                if distance(self,i,j, candidate.position.x, candidate.position.y) < self.radius:
-                    if (data[i][j] == -1):
+                if self.distance(i, j, relative_position_x, relative_position_y) < relative_radius:
+                    data_pose = j * width + i
+                    if (data[data_pose] == -1):
                         numberOfUnknownCells = numberOfUnknownCells + 1
                     else:
                         numberOfKnownCells = numberOfKnownCells + 1
-        
+
         return numberOfUnknownCells / (numberOfKnownCells + numberOfUnknownCells)
 
     def moveToBestCandidateLocation(self):
@@ -229,7 +234,7 @@ class MaxQuantityOfInformationNBVAlgorithm(NextBestViewAlgorithm):
     def chooseBestCandidate(self):
         maxQuantityOfInformation = 0.0
         for eachCandidate in self.candidates.values():
-            q = quantityOfNewInformation(eachCandidate)
+            q = self.quantityOfNewInformation(eachCandidate)
             if q > maxQuantityOfInformation:
                 maxQuantityOfInformation = q
                 self.bestCandidate = eachCandidate
