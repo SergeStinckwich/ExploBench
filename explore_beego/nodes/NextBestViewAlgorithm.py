@@ -10,6 +10,7 @@ http://www.ros.org/doc/api/move_base_msgs/html/msg/MoveBaseGoal.html
 import sys
 import array
 import random
+import time
 import math
 from abc import ABCMeta, abstractmethod
 # ROS import
@@ -36,6 +37,20 @@ from sensor_msgs.msg import LaserScan
 
 import PyMCDA
 
+class DumpPlot(object):
+    _file = None
+    _time = 0.0
+    def __init__(self, name="na"):
+        self._time = time.time()
+        self._file = open("plot.%s.%i.csv"%(name, int(self._time)), "w")
+    def dump(self, x, y):
+        if x and y:
+            delta = time.time() - self._time
+            self._file.write(" %f , %f , %f \n"%(x, y, delta))
+            self._file.flush()
+    def __del__(self):
+        self._file.close()
+
 class NextBestViewAlgorithm(object):
     """Abstract class for NBV algorithms"""
     __metaclass__ = ABCMeta
@@ -44,7 +59,7 @@ class NextBestViewAlgorithm(object):
     candidates = {}
     bestCandidate = None
     client = None
-    pourcentageOfKnowEnv = 0
+    pourcentageOfKnownEnv = 0.0
     maxPourcentageofCoverage = 0.90
     robot_pose = None
     occupancy_grid = None
@@ -66,27 +81,31 @@ class NextBestViewAlgorithm(object):
         # Waits until the action server has started up and started
         # listening for goals.
         self.client.wait_for_server()
+        plot = DumpPlot(self.className)
 
         while not rospy.is_shutdown() and \
-              (self.pourcentageOfKnowEnv < self.maxPourcentageofCoverage):
+              (self.pourcentageOfKnownEnv < self.maxPourcentageofCoverage):
             self.chooseBestCandidate()
             self.moveToBestCandidateLocation()
+            plot.dump(self.computePourcentageOfKnownEnv(), self.distance_traveled)
             rospy.sleep(.2)
+            print(self.pourcentageOfKnownEnv)
 
         print("exploration done !")
 
     @abstractmethod
     def chooseBestCandidate(self): pass
 
-    def computePourcentageOfKnownEnv():
+    def computePourcentageOfKnownEnv(self):
         if not self.occupancy_grid:
             return 0
         data = self.occupancy_grid.data
-        nbOfUnknownCells = 0
+        nbOfUnknownCells = 0.0
         for eachCells in data:
-            if (eachCells == -1):
-                nbOfUnknownCells = nbOfUnknowCells + 1
-        self.pourcentageOfKnownEnv = 1 - (nbOfUnknownCells / len(data))
+            if eachCells == -1:
+                nbOfUnknownCells += 1
+        self.pourcentageOfKnownEnv = 1.0 - (nbOfUnknownCells / len(data))
+        return self.pourcentageOfKnownEnv
 
     def distanceBetweenPose(self, pose1, pose2):
         """Compute the euclidian distance between 2 poses"""
@@ -256,7 +275,7 @@ class MCDMPrometheeNBVAlgorithm(NextBestViewAlgorithm):
     weights = {'Distance': 0.6, 'QuantityOfInformation': 0.4}
     # Preference function used (see paper for details)
     preferenceFunction = {'Distance': PyMCDA.GaussianPreferenceFunction(10), 
-                          'QuantiteOfInformation' : PyMCDA.LinearPreferenceFunction(60,10)} 
+                          'QuantityOfInformation' : PyMCDA.LinearPreferenceFunction(60,10)} 
 
     def chooseBestCandidate(self):
         #Wait for the availability of this service
