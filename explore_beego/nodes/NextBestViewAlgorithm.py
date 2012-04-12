@@ -20,6 +20,7 @@ roslib.load_manifest('nav_msgs')
 roslib.load_manifest('visualization_msgs')
 roslib.load_manifest('move_base')
 roslib.load_manifest('nav_msgs')
+roslib.load_manifest('geometry_msgs')
 import rospy
 import actionlib
 from nav_msgs.srv import GetPlan
@@ -27,6 +28,7 @@ from visualization_msgs.msg import Marker
 from move_base_msgs.msg import MoveBaseAction
 from move_base_msgs.msg import MoveBaseGoal
 from nav_msgs.msg import OccupancyGrid
+from geometry_msgs.msg import PoseStamped
 
 import PyMCDA
 
@@ -72,7 +74,7 @@ class NextBestViewAlgorithm(object):
 
     def distanceBetweenPose(self, pose1, pose2):
         """Compute the euclidian distance between 2 poses"""
-        return sqrt(pow(pose2.position.x-pose1.position.x, 2) +
+        return math.sqrt(pow(pose2.position.x-pose1.position.x, 2) +
                     pow(pose2.position.y-pose1.position.y, 2))
 
     def computePathLength(self, plan):
@@ -81,7 +83,7 @@ class NextBestViewAlgorithm(object):
         pathLength = 0
         #Iteration among along the poses in order to compute the length
         for index in range(1, len(poses)):
-            pathLength += distanceBetweenPose(poses[index-1], poses[index])
+            pathLength += self.distanceBetweenPose(poses[index-1].pose, poses[index].pose)
         return pathLength
 
     def distance(self, x1, y1, x2, y2):
@@ -115,6 +117,7 @@ class NextBestViewAlgorithm(object):
 
             # Creates a goal to send to the action server.
             goal = MoveBaseGoal()
+            goal.target_pose.header.frame_id = "map"
             goal.target_pose.pose = self.bestCandidate
             print(goal)
 
@@ -122,7 +125,7 @@ class NextBestViewAlgorithm(object):
             self.client.send_goal(goal)
 
             # Waits for the server to finish performing the action.
-            self.client.wait_for_result(rospy.Duration.from_sec(5.0))
+            self.client.wait_for_result()#rospy.Duration.from_sec(5.0))
 
     @property
     def className(self):
@@ -147,30 +150,36 @@ class RandomNBVAlgorithm(NextBestViewAlgorithm):
 class MinimumLengthNBVAlgorithm(NextBestViewAlgorithm):
     """Exploration algorithm that use the criteria of length
     of the minimum collision-free path to candidate"""
-    
+
     def chooseBestCandidate(self):
         #Wait for the availability of this service
-        rospy.wait_for_service('make_plan')
+        rospy.wait_for_service('move_base/make_plan')
         #Get a proxy to execute the service
-        make_plan = rospy.ServiceProxy('make_plan', GetPlan)
+        make_plan = rospy.ServiceProxy('move_base/make_plan', GetPlan)
 
-        bestCandidate = None
+        self.bestCandidate = None
         shortestLength = 0
         firstCandidate = True
+        start = PoseStamped() # XXX robot pose!
+        start.header.frame_id = "map"
+        goal = PoseStamped()
+        goal.header.frame_id = "map"
+        tolerance = 0.0
         #Find the candidate with the shortest path
         for eachCandidate in self.candidates.values():
             #Execute service for each candidates
-            plan = make_plan(eachCandidate)
+            goal.pose = eachCandidate
+            plan_response = make_plan(start = start, goal = goal, tolerance = tolerance)
             #Compute the length of the path
-            pathLength = computePathLength(plan)
+            pathLength = self.computePathLength(plan_response.plan)
             #Set the shortestPath for the first candidate
             if firstCandidate:
                 shortestPath = pathLength
-                bestCandidate = eachCandidate
+                self.bestCandidate = eachCandidate
                 firstCandidate = False
             #If this is the shortest path until now, we found a new bestCandidate
             if pathLength < shortestLength:
-                bestCandidate = eachCandidate
+                self.bestCandidate = eachCandidate
                 shortestLength = pathLength
 
 class MaxQuantityOfInformationNBVAlgorithm(NextBestViewAlgorithm):

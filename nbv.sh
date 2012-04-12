@@ -1,4 +1,6 @@
 #!/bin/sh
 
 export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:$(pwd)/explore_beego
-rosrun explore_beego NextBestViewAlgorithm.py RandomNBVAlgorithm
+export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:$(pwd)/explore_stage2
+export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:$(pwd)/explore2
+rosrun explore_beego NextBestViewAlgorithm.py MinimumLengthNBVAlgorithm
