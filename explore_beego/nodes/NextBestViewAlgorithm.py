@@ -216,24 +216,24 @@ class MCDMPrometheeNBVAlgorithm(NextBestViewAlgorithm):
         make_plan = rospy.ServiceProxy('move_base/make_plan', GetPlan)
         # Evaluation of each candidates for each criteria used
         c = []
-        for eachCandidate in candidates:
+       for eachCandidate in self.candidates.values():
             #Compute distance between robot and candidate
-            start = PoseStamped() 
+            start = PoseStamped()
             start.header.frame_id = "map"
             start.pose = self.robot_pose
             goal = PoseStamped()
             goal.header.frame_id = "map"
             tolerance = 0.0
-            plan_response = makeplan(start = start, goal = goal, tolerance = tolerance)
+            plan_response = make_plan(start = start, goal = goal, tolerance = tolerance)
             distance = computePathLength(plan_response.plan)
             # Compute new quantity of information criteria for the candidate
             qi = quantityOfInformation(eachCandidate)
             # We negated Distance because we want to minimize this criteria
             c.append({'Distance': - distance, 'QuantityOfInformation': qi})
         # Suppresion of candidates that are not on Pareto front
-        filteredCandidates = paretoFilter(c, self.criteria) 
-        bestCandidate = decision(filteredCandidates, self.criteria, self.weights, self.preferenceFunction)
-        print(' PROMETHEE II decision: ', bestCandidate)
+        filteredCandidates = PyMCDA.paretoFilter(c, self.criteria) 
+        self.bestCandidate = PyMCDA.decision(filteredCandidates, self.criteria, self.weights, self.preferenceFunction)
+        print(' PROMETHEE II decision: ', self.bestCandidate)
 
 def main(argv):
     if len(argv) < 2:
