@@ -43,6 +43,7 @@ class DumpPlot(object):
     def __init__(self, name="na"):
         self._time = time.time()
         self._file = open("plot.%s.%i.csv"%(name, int(self._time)), "w")
+        self._file.write("explored , distance , time , , %% explored , , with x env\n")
     def dump(self, x, y):
         if x and y:
             delta = time.time() - self._time
@@ -274,8 +275,8 @@ class MCDMPrometheeNBVAlgorithm(NextBestViewAlgorithm):
     # weights of choosen criteria
     weights = {'Distance': 0.6, 'QuantityOfInformation': 0.4}
     # Preference function used (see paper for details)
-    preferenceFunction = {'Distance': PyMCDA.GaussianPreferenceFunction(10), 
-                          'QuantityOfInformation' : PyMCDA.LinearPreferenceFunction(60,10)} 
+    preferenceFunction = {'Distance': PyMCDA.GaussianPreferenceFunction(2), 
+                          'QuantityOfInformation' : PyMCDA.LinearPreferenceFunction(30,5)} 
 
     def chooseBestCandidate(self):
         #Wait for the availability of this service

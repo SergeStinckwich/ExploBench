@@ -1,0 +1,10 @@
+<package>
+  <description brief="bosch-ros-pkg worlds">
+    Worlds used in simulation for demoing bosch-ros-pkg packages.
+  </description>
+  <author>Charles DuHadway (Maintained by Benjamin Pitzer)</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+</package>
+
+
