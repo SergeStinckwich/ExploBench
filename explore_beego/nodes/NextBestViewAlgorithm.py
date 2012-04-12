@@ -209,9 +209,9 @@ class MCDMPrometheeNBVAlgorithm(NextBestViewAlgorithm):
         # Evaluation of each candidates for each criteria used
         c = []
         for eachCandidate in candidates:
-            # We negated Distance because we want to minimize this criteria
             distance = computePathLength(make_plan(eachCandidate))
             qi = quantityOfInformation(eachCandidate)
+            # We negated Distance because we want to minimize this criteria
             c.append({'Distance': - distance, 'QuantityOfInformation': qi})
         # Suppresion of candidates that are not on Pareto front
         filteredCandidates = paretoFilter(c, self.criteria) 
