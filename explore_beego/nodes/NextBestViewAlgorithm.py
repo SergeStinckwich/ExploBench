@@ -28,6 +28,8 @@ from move_base_msgs.msg import MoveBaseAction
 from move_base_msgs.msg import MoveBaseGoal
 from nav_msgs.msg import OccupancyGrid
 
+import PyMCDA
+
 class NextBestViewAlgorithm(object):
     """Abstract class for NBV algorithms"""
     __metaclass__ = ABCMeta
@@ -86,8 +88,8 @@ class NextBestViewAlgorithm(object):
         return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2))
 
     def quantityOfNewInformation(self, candidate):
-        #Compute the pourcentage of new information for a candidate
-        # radius = How to have acess to the perception radius ???
+        # Compute the pourcentage of new information for a candidate
+        # TODO: get radius from laser scan topic
         data = self.occupancy_grid.data
         numberOfUnknownCells = 0
         numberOfKnownCells = 0
@@ -172,6 +174,7 @@ class MinimumLengthNBVAlgorithm(NextBestViewAlgorithm):
                 shortestLength = pathLength
 
 class MaxQuantityOfInformationNBVAlgorithm(NextBestViewAlgorithm):
+    """NBVAlgorithm based on the criteria of quantity of information"""
     def chooseBestCandidate(self):
         maxQuantityOfInformation = 0.0
         for eachCandidate in self.candidates.values():
@@ -180,10 +183,31 @@ class MaxQuantityOfInformationNBVAlgorithm(NextBestViewAlgorithm):
                 maxQuantityOfInformation = q
                 self.bestCandidate = eachCandidate
 
-
 class MCDMPrometheeNBVAlgorithm(NextBestViewAlgorithm):
+    """NBVAlgorithm based on PROMETHEE II Multi-criteria decision making method"""
+    # name of choosen criteria
+    criteria = ['Distance', 'QuantityOfInformation']
+    # weights of choosen criteria
+    weights = {'Distance': 0.6, 'QuantityOfInformation': 0.4]
+    # Preference function used (see paper for details)
+    preferenceFunction = {'Distance': GaussianPreferenceFunction(10), 'QuantiteOfInformation' : LinearPreferenceFunction(60,10)} 
+        
     def chooseBestCandidate(self):
-        shouldBeImplemented
+        # Wait for the availability of this service
+        rospy.wait_for_service('make_plan')
+        # Get a proxy to execute the service
+        make_plan = rospy.ServiceProxy('make_plan', GetPlan)
+        # Evaluation of each candidates for each criteria used
+        c = []
+        for eachCandidate in candidates:
+            # We negated Distance because we want to minimize this criteria
+            distance = computePathLength(make_plan(eachCandidate))
+            qi = quantityOfInformation(eachCandidate)
+            c.append({'Distance': - distance, 'QuantityOfInformation': qi})
+        # Suppresion of candidates that are not on Pareto front
+        filteredCandidates = paretoFilter(c, self.criteria) 
+        bestCandidate = decision(filteredCandidates, self.criteria, self.weights, self.preferenceFunction)
+        print(' PROMETHEE II decision: ', bestCandidate)
 
 def main(argv):
     if len(argv) < 2:
