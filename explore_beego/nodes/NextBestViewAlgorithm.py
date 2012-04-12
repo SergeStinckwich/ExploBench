@@ -199,17 +199,25 @@ class MCDMPrometheeNBVAlgorithm(NextBestViewAlgorithm):
     # weights of choosen criteria
     weights = {'Distance': 0.6, 'QuantityOfInformation': 0.4]
     # Preference function used (see paper for details)
-    preferenceFunction = {'Distance': GaussianPreferenceFunction(10), 'QuantiteOfInformation' : LinearPreferenceFunction(60,10)} 
+    preferenceFunction = {'Distance': PyMCDA.GaussianPreferenceFunction(10), 'QuantiteOfInformation' : PyMCDA.LinearPreferenceFunction(60,10)} 
         
     def chooseBestCandidate(self):
         # Wait for the availability of this service
-        rospy.wait_for_service('make_plan')
+        rospy.wait_for_service('move_base/make_plan')
         # Get a proxy to execute the service
-        make_plan = rospy.ServiceProxy('make_plan', GetPlan)
+        make_plan = rospy.ServiceProxy('move_base/make_plan', GetPlan)
         # Evaluation of each candidates for each criteria used
         c = []
         for eachCandidate in candidates:
-            distance = computePathLength(make_plan(eachCandidate))
+            #Compute distance between robot and candidate
+            start = PoseStamped() # XXX robot pose!
+            start.header.frame_id = "map"
+            goal = PoseStamped()
+            goal.header.frame_id = "map"
+            tolerance = 0.0
+            plan_response = makeplan(start = start, goal = goal, tolerance = tolerance)
+            distance = computePathLength(plan_response.plan)
+            # Compute new quantity of information criteria for the candidate
             qi = quantityOfInformation(eachCandidate)
             # We negated Distance because we want to minimize this criteria
             c.append({'Distance': - distance, 'QuantityOfInformation': qi})
