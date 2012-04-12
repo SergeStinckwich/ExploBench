@@ -19,12 +19,14 @@ roslib.load_manifest('actionlib')
 roslib.load_manifest('nav_msgs')
 roslib.load_manifest('visualization_msgs')
 roslib.load_manifest('move_base')
+roslib.load_manifest('nav_msgs')
 import rospy
 import actionlib
 from nav_msgs.srv import GetPlan
 from visualization_msgs.msg import Marker
 from move_base_msgs.msg import MoveBaseAction
 from move_base_msgs.msg import MoveBaseGoal
+from nav_msgs.msg import OccupancyGrid
 
 class NextBestViewAlgorithm(object):
     """Abstract class for NBV algorithms"""
@@ -40,7 +42,8 @@ class NextBestViewAlgorithm(object):
     def __init__(self):
         rospy.init_node("NBV%s"%self.className)
         rospy.Subscriber('visualization_marker', Marker, self.handle_markers)
-        self.client = actionlib.SimpleActionClient('/move_base', MoveBaseAction)
+        rospy.Subscriber('map', OccupancyGrid, self.handle_occupancy_grid)
+        self.client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
 
     def run(self):
         # Waits until the action server has started up and started
@@ -48,7 +51,7 @@ class NextBestViewAlgorithm(object):
         self.client.wait_for_server()
 
         while not rospy.is_shutdown() and \
-              (pourcentageUnkownEnv < maxPourcentageCoverage):
+              (self.pourcentageOfKnowEnv < self.maxPourcentageofCoverage):
             self.chooseBestCandidate()
             self.moveToBestCandidateLocation()
             rospy.sleep(.2)
@@ -68,20 +71,21 @@ class NextBestViewAlgorithm(object):
     def moveToBestCandidateLocation(self):
         """Use the navigation stack to move to the goal"""
 
-        if not bestCandidate:
+        if not self.bestCandidate:
             rospy.loginfo('No best candidate')
         else:
             rospy.loginfo('Move to best candidate')
 
             # Creates a goal to send to the action server.
             goal = MoveBaseGoal()
-            goal.target_pose.pose = bestCandidate
+            goal.target_pose.pose = self.bestCandidate
+            print(goal)
 
             # Sends the goal to the action server.
             self.client.send_goal(goal)
 
             # Waits for the server to finish performing the action.
-            self.client.waitForResult()
+            self.client.wait_for_result(rospy.Duration.from_sec(5.0))
 
     @property
     def className(self):
@@ -94,10 +98,14 @@ class NextBestViewAlgorithm(object):
         else:
             self.candidates[marker.id] = marker.pose
 
+    def handle_occupancy_grid(self, msg):
+        self.occupancy_grid = msg
+
 class RandomNBVAlgorithm(NextBestViewAlgorithm):
     """Move the robot to a randomly choosen candidate"""
     def chooseBestCandidate(self):
-        self.bestCandidate = random.choice(self.candidates.values())
+        if self.candidates.values():
+            self.bestCandidate = random.choice(self.candidates.values())
 
 class MinimumLengthNBVAlgorithm(NextBestViewAlgorithm):
     """Exploration algorithm that use the criteria of length
@@ -143,11 +151,16 @@ class MinimumLengthNBVAlgorithm(NextBestViewAlgorithm):
                 shortestLength = pathLength
 
 class MaxQuantityOfInformationNBVAlgorithm(NextBestViewAlgorithm):
-    def chhoseBestCandidate(self):
-        shouldBeImplemented
-    
+    def chooseBestCandidate(self):
+        maxQuantityOfInformation = 0.0
+        for eachCandidate in self.candidates.values():
+            q = quantityOfNewInformation(eachCandidate)
+            if q > maxQuantityOfInformation:
+                maxQuantityOfInformation = q
+                self.bestCandidate = eachCandidate
+
     def distance(self, x1, y1, x2, y2):
-        return sqrt(pow(x2-x1, 2) + pow(y2-y1, 2))
+        return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2))
 
     def quantityOfNewInformation(self, candidate):
         #Compute the pourcentage of new information for a candidate
@@ -156,18 +169,18 @@ class MaxQuantityOfInformationNBVAlgorithm(NextBestViewAlgorithm):
         numberOfUnknownCells = 0
         numberOfKnownCells = 0
         #Iteration in a square with center candidate
-        for i in range(candidate.x-radius:candidate.x+radius):
-            for j in range(candidate.y-radius:candidate.y+radius):
+        for i in range(candidate.x - radius, candidate.x + radius):
+            for j in range(candidate.y - radius, candidate.y + radius):
                 #Test that we are in the disk
                 if distance(self,i,j, candidate.x, candidate.y) < radius:
                     if (data[i][j] == -1):
                         numberOfUnknownCells = numberOfUnknownCells + 1
-                    elif:
+                    else:
                         numberOfKnownCells = numberOfKnownCells + 1
         
         return numberOfUnknownCells / (numberOfKnownCells + numberOfUnknownCells)
 
-class MCDMPrometheeNBVAlgorithm(NextBextViewAlgorithm):
+class MCDMPrometheeNBVAlgorithm(NextBestViewAlgorithm):
     def chooseBestCandidate(self):
         shouldBeImplemented
 
