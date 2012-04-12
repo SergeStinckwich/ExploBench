@@ -68,6 +68,41 @@ class NextBestViewAlgorithm(object):
                 nbOfUnknownCells = nbOfUnknowCells + 1
         self.pourcentageOfKnownEnv = 1 - (nbOfUnknownCells / len(data))
 
+    def distanceBetweenPose(self, pose1, pose2):
+        """Compute the euclidian distance between 2 poses"""
+        return sqrt(pow(pose2.position.x-pose1.position.x, 2) +
+                    pow(pose2.position.y-pose1.position.y, 2))
+
+    def computePathLength(self, plan):
+        """Compute the length path with the poses of the plan"""
+        poses = plan.poses
+        pathLength = 0
+        #Iteration among along the poses in order to compute the length
+        for index in range(1, len(poses)):
+            pathLength += distanceBetweenPose(poses[index-1], poses[index])
+        return pathLength
+
+    def distance(self, x1, y1, x2, y2):
+        return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2))
+
+    def quantityOfNewInformation(self, candidate):
+        #Compute the pourcentage of new information for a candidate
+        # radius = How to have acess to the perception radius ???
+        data = self.occupancy_grid.data
+        numberOfUnknownCells = 0
+        numberOfKnownCells = 0
+        #Iteration in a square with center candidate
+        for i in range(candidate.x - radius, candidate.x + radius):
+            for j in range(candidate.y - radius, candidate.y + radius):
+                #Test that we are in the disk
+                if distance(self,i,j, candidate.x, candidate.y) < radius:
+                    if (data[i][j] == -1):
+                        numberOfUnknownCells = numberOfUnknownCells + 1
+                    else:
+                        numberOfKnownCells = numberOfKnownCells + 1
+        
+        return numberOfUnknownCells / (numberOfKnownCells + numberOfUnknownCells)
+
     def moveToBestCandidateLocation(self):
         """Use the navigation stack to move to the goal"""
 
@@ -111,20 +146,6 @@ class MinimumLengthNBVAlgorithm(NextBestViewAlgorithm):
     """Exploration algorithm that use the criteria of length
     of the minimum collision-free path to candidate"""
     
-    def distanceBetweenPose(self, pose1, pose2):
-        """Compute the euclidian distance between 2 poses"""
-        return sqrt(pow(pose2.position.x-pose1.position.x, 2) +
-                    pow(pose2.position.y-pose1.position.y, 2))
-
-    def computePathLength(self, plan):
-        """Compute the length path with the poses of the plan"""
-        poses = plan.poses
-        pathLength = 0
-        #Iteration among along the poses in order to compute the length
-        for index in range(1, len(poses)):
-            pathLength += distanceBetweenPose(poses[index-1], poses[index])
-        return pathLength
-
     def chooseBestCandidate(self):
         #Wait for the availability of this service
         rospy.wait_for_service('make_plan')
@@ -159,26 +180,6 @@ class MaxQuantityOfInformationNBVAlgorithm(NextBestViewAlgorithm):
                 maxQuantityOfInformation = q
                 self.bestCandidate = eachCandidate
 
-    def distance(self, x1, y1, x2, y2):
-        return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2))
-
-    def quantityOfNewInformation(self, candidate):
-        #Compute the pourcentage of new information for a candidate
-        # radius = How to have acess to the perception radius ???
-        data = self.occupancy_grid.data
-        numberOfUnknownCells = 0
-        numberOfKnownCells = 0
-        #Iteration in a square with center candidate
-        for i in range(candidate.x - radius, candidate.x + radius):
-            for j in range(candidate.y - radius, candidate.y + radius):
-                #Test that we are in the disk
-                if distance(self,i,j, candidate.x, candidate.y) < radius:
-                    if (data[i][j] == -1):
-                        numberOfUnknownCells = numberOfUnknownCells + 1
-                    else:
-                        numberOfKnownCells = numberOfKnownCells + 1
-        
-        return numberOfUnknownCells / (numberOfKnownCells + numberOfUnknownCells)
 
 class MCDMPrometheeNBVAlgorithm(NextBestViewAlgorithm):
     def chooseBestCandidate(self):
