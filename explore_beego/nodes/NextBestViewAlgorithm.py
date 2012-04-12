@@ -29,6 +29,7 @@ from move_base_msgs.msg import MoveBaseAction
 from move_base_msgs.msg import MoveBaseGoal
 from nav_msgs.msg import OccupancyGrid
 from geometry_msgs.msg import PoseStamped
+from nav_msgs.msg import Odometry
 
 import PyMCDA
 
@@ -42,11 +43,13 @@ class NextBestViewAlgorithm(object):
     client = None
     pourcentageOfKnowEnv = 0
     maxPourcentageofCoverage = 0.90
+    robot_pose = None
 
     def __init__(self):
         rospy.init_node("NBV%s"%self.className)
         rospy.Subscriber('visualization_marker', Marker, self.handle_markers)
         rospy.Subscriber('map', OccupancyGrid, self.handle_occupancy_grid)
+        rospy.Subscriber('odom', Odometry, self.handle_odom)
         self.client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
 
     def run(self):
@@ -141,6 +144,9 @@ class NextBestViewAlgorithm(object):
     def handle_occupancy_grid(self, msg):
         self.occupancy_grid = msg
 
+    def handle_odom(self, msg):
+        self.robot_pose = msg.pose.pose
+
 class RandomNBVAlgorithm(NextBestViewAlgorithm):
     """Move the robot to a randomly choosen candidate"""
     def chooseBestCandidate(self):
@@ -160,8 +166,9 @@ class MinimumLengthNBVAlgorithm(NextBestViewAlgorithm):
         self.bestCandidate = None
         shortestLength = 0
         firstCandidate = True
-        start = PoseStamped() # XXX robot pose!
+        start = PoseStamped()
         start.header.frame_id = "map"
+        start.pose = self.robot_pose
         goal = PoseStamped()
         goal.header.frame_id = "map"
         tolerance = 0.0
@@ -197,10 +204,11 @@ class MCDMPrometheeNBVAlgorithm(NextBestViewAlgorithm):
     # name of choosen criteria
     criteria = ['Distance', 'QuantityOfInformation']
     # weights of choosen criteria
-    weights = {'Distance': 0.6, 'QuantityOfInformation': 0.4]
+    weights = {'Distance': 0.6, 'QuantityOfInformation': 0.4}
     # Preference function used (see paper for details)
-    preferenceFunction = {'Distance': GaussianPreferenceFunction(10), 'QuantiteOfInformation' : LinearPreferenceFunction(60,10)} 
-        
+    preferenceFunction = {'Distance': PyMCDA.GaussianPreferenceFunction(10), 
+                          'QuantiteOfInformation' : PyMCDA.LinearPreferenceFunction(60,10)} 
+
     def chooseBestCandidate(self):
         # Wait for the availability of this service
         rospy.wait_for_service('make_plan')
