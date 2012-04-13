@@ -82,6 +82,7 @@ class NextBestViewAlgorithm(threading.Thread):
         self.client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
 
     def run(self):
+        self.exploring = True
         # Waits until the action server has started up and started
         # listening for goals.
         self.client.wait_for_server()
@@ -92,7 +93,7 @@ class NextBestViewAlgorithm(threading.Thread):
             print("pourcentage of known env: %.2f%%"%(self.pourcentageOfKnownEnv*1000))
 
         print("exploration done !")
-        rospy.signal_shutdown(self._node_name)
+        self.exploring = False
 
     def dump(self):
         self.plot.dump(self.computePourcentageOfKnownEnv(),
@@ -101,9 +102,10 @@ class NextBestViewAlgorithm(threading.Thread):
     def watch(self):
         self.start()
         self.plot = DumpPlot(self.className)
-        while not rospy.is_shutdown():
+        while self.exploring:
             self.dump()
             rospy.sleep(1.0)
+        rospy.signal_shutdown(self._node_name)
 
     @abstractmethod
     def chooseBestCandidate(self): pass
