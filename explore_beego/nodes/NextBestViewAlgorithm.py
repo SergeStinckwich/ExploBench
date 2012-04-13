@@ -66,6 +66,7 @@ class NextBestViewAlgorithm(object):
     occupancy_grid = None
     distance_traveled = 0.0
     robot_last_pose = None
+    base_station_pose = None
     radius = None
     subscriber_laser_once = None
 
@@ -165,6 +166,10 @@ class NextBestViewAlgorithm(object):
 
         print("numberOfKnownCells: %i numberOfUnknownCells: %i"%(numberOfKnownCells, numberOfUnknownCells))
         return numberOfUnknownCells / (numberOfKnownCells + numberOfUnknownCells)
+
+    def distanceToBaseStation(self, candidate_pose):
+        """We consider that the base station is located at the same position than the robot at the beginning"""
+        return self.distanceBetweenPose(base_station_pose, candidate_pose)
 
     def moveToBestCandidateLocation(self):
         """Use the navigation stack to move to the goal"""
@@ -295,8 +300,35 @@ class GBLNBVAlgorithm(NextBestViewAlgorithm):
 
 class MCDMBANBVAlgorithm(NextBestViewAlgorithm):
     """NBVAlgorithm based on Amigoni and Basilico Multi-criteria decision method"""
+    # Criteria Weights (at the moment hardcoded in the code of the algorithm)
+    # L : 0.3
+    # A : 0.5
+    # P : 0.2
+    # A, L : 0.95
+    # A, P : 0.7
+    # L, P : 0.4
+
     def chooseBestCandidate(self):
-        pass
+        self.bestCandidate = None
+        start = PoseStamped()
+        start.header.frame_id = "map"
+        start.pose = self.robot_pose
+        goal = PoseStamped()
+        start.header.frame_id = "map"
+        tolerance = 0.0
+        maxUtility = 0.0
+        # Maximize the utility
+        for eachCandidate in candidates.values():
+            goal.pose = eachCandidate
+            plan_response = make_plan(start = start, goal = goal, tolerance = tolerance)
+            distance = self.computePathLength(plan_response.plan)
+            quantity_information = self.quantityOfInformation(eachCandidate)
+            distance_to_base_station = self.distanceBaseStation(goal.pose)
+            # Compute the utility of eachCandidate
+            utility = 0
+            if (utility>maxUtility):
+                maxUtility = utility
+                self.bestCandidate = eachCandidate
 
 class MCDMPrometheeNBVAlgorithm(NextBestViewAlgorithm):
     """NBVAlgorithm based on PROMETHEE II Multi-criteria decision making method"""
