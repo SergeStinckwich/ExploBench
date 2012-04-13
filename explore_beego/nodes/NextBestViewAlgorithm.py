@@ -97,8 +97,8 @@ class NextBestViewAlgorithm(threading.Thread):
         self.exploring = False
 
     def dump(self):
-        self.plot.dump(self.computePourcentageOfKnownEnv()*1000,
-                       self.distance_traveled)
+        return self.plot.dump(self.computePourcentageOfKnownEnv()*1000,
+                              self.distance_traveled)
 
     def watch(self):
         self.start()
@@ -106,7 +106,8 @@ class NextBestViewAlgorithm(threading.Thread):
         while self.exploring:
             elapsed_time = self.dump()
             if elapsed_time > 300:
-                print("timeout 5 min")
+                print("timeout 5 min !")
+                self.exploring = False
                 break
             rospy.sleep(1.0)
         rospy.signal_shutdown(self._node_name)
