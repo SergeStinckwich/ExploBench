@@ -44,12 +44,11 @@ class DumpPlot(object):
     def __init__(self, name="na"):
         self._time = time.time()
         self._file = open("plot.%s.%i.csv"%(name, int(self._time)), "w")
-        self._file.write("explored , distance , time \n")
-    def dump(self, x, y):
-        if x and y:
-            delta = time.time() - self._time
-            self._file.write(" %f , %f , %f \n"%(x, y, delta))
-            self._file.flush()
+        self._file.write("explored (%) , distance (m) , time (s) \n")
+    def dump(self, explored, distance):
+        elapsed_time = time.time() - self._time
+        self._file.write(" %f , %f , %f \n"%(explored, distance, elapsed_time))
+        self._file.flush()
     def __del__(self):
         self._file.close()
 
@@ -164,7 +163,7 @@ class NextBestViewAlgorithm(threading.Thread):
         scan_min_y = max(relative_position_y - relative_radius, 0)
         scan_max_x = min(relative_position_x + relative_radius, width)
         scan_max_y = min(relative_position_y + relative_radius, height)
-        print("%i %i %i %i"%(scan_min_x,scan_min_y,scan_max_x,scan_max_y))
+        print("window: x1 %i y1 %i x2 %i y2 %i"%(scan_min_x,scan_min_y,scan_max_x,scan_max_y))
 
         for i in range(scan_min_x, scan_max_x):
             for j in range(scan_min_y, scan_max_y):
@@ -176,7 +175,7 @@ class NextBestViewAlgorithm(threading.Thread):
                     else:
                         numberOfKnownCells += 1
 
-        print("numberOfKnownCells: %i numberOfUnknownCells: %i"%(numberOfKnownCells, numberOfUnknownCells))
+        print("known cells: %i unknown cells: %i"%(numberOfKnownCells, numberOfUnknownCells))
         return numberOfUnknownCells / (numberOfKnownCells + numberOfUnknownCells)
 
     def moveToBestCandidateLocation(self):
