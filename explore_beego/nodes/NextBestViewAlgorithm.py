@@ -88,7 +88,8 @@ class NextBestViewAlgorithm(threading.Thread):
         # listening for goals.
         self.client.wait_for_server()
 
-        while self.pourcentageOfKnownEnv < self.maxPourcentageofCoverage:
+        while self.exploring and \
+                self.pourcentageOfKnownEnv < self.maxPourcentageofCoverage:
             self.chooseBestCandidate()
             self.moveToBestCandidateLocation()
             print("pourcentage of known env: %.2f%%"%(self.pourcentageOfKnownEnv*1000))
@@ -110,6 +111,7 @@ class NextBestViewAlgorithm(threading.Thread):
                 self.exploring = False
                 break
             rospy.sleep(1.0)
+        self.join(60) # wait for the thread to stop
         rospy.signal_shutdown(self._node_name)
 
     @abstractmethod
