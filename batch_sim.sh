@@ -1,7 +1,8 @@
 #!/bin/sh
 
 #algo=MinimumLengthNBVAlgorithm
-algo=MCDMPrometheeNBVAlgorithm
+#algo=MCDMPrometheeNBVAlgorithm
+algo=GBLNBVAlgorithm
 
 export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:$(pwd)/explore_beego
 export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:$(pwd)/explore_stage2
