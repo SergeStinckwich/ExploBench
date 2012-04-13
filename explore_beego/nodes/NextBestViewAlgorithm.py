@@ -44,7 +44,7 @@ class DumpPlot(object):
     def __init__(self, name="na"):
         self._time = time.time()
         self._file = open("plot.%s.%i.csv"%(name, int(self._time)), "w")
-        self._file.write("explored , distance , time , , % explored , , with x env\n")
+        self._file.write("explored , distance , time \n")
     def dump(self, x, y):
         if x and y:
             delta = time.time() - self._time
@@ -96,7 +96,7 @@ class NextBestViewAlgorithm(threading.Thread):
         self.exploring = False
 
     def dump(self):
-        self.plot.dump(self.computePourcentageOfKnownEnv(),
+        self.plot.dump(self.computePourcentageOfKnownEnv()*1000,
                        self.distance_traveled)
 
     def watch(self):
