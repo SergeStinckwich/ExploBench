@@ -12,6 +12,7 @@ import array
 import random
 import time
 import math
+import threading
 from abc import ABCMeta, abstractmethod
 # ROS import
 import roslib
@@ -52,7 +53,7 @@ class DumpPlot(object):
     def __del__(self):
         self._file.close()
 
-class NextBestViewAlgorithm(object):
+class NextBestViewAlgorithm(threading.Thread):
     """Abstract class for NBV algorithms"""
     __metaclass__ = ABCMeta
     # contains the different candidates positions for exploration
@@ -70,7 +71,9 @@ class NextBestViewAlgorithm(object):
     subscriber_laser_once = None
 
     def __init__(self):
-        rospy.init_node("NBV%s"%self.className)
+        threading.Thread.__init__(self)
+        self._node_name = "NBV%s"%self.className
+        rospy.init_node(self._node_name)
         rospy.Subscriber('visualization_marker', Marker, self.handle_markers)
         rospy.Subscriber('explore/map', OccupancyGrid, self.handle_occupancy_grid)
         rospy.Subscriber('odom', Odometry, self.handle_odom)
@@ -82,17 +85,25 @@ class NextBestViewAlgorithm(object):
         # Waits until the action server has started up and started
         # listening for goals.
         self.client.wait_for_server()
-        plot = DumpPlot(self.className)
 
-        while not rospy.is_shutdown() and \
-              (self.pourcentageOfKnownEnv < self.maxPourcentageofCoverage):
+        while self.pourcentageOfKnownEnv < self.maxPourcentageofCoverage:
             self.chooseBestCandidate()
             self.moveToBestCandidateLocation()
-            plot.dump(self.computePourcentageOfKnownEnv(), self.distance_traveled)
-            rospy.sleep(.2)
-            print(self.pourcentageOfKnownEnv)
+            print("pourcentage of known env: %.2f%%"%(self.pourcentageOfKnownEnv*1000))
 
         print("exploration done !")
+        rospy.signal_shutdown(self._node_name)
+
+    def dump(self):
+        self.plot.dump(self.computePourcentageOfKnownEnv(),
+                       self.distance_traveled)
+
+    def watch(self):
+        self.start()
+        self.plot = DumpPlot(self.className)
+        while not rospy.is_shutdown():
+            self.dump()
+            rospy.sleep(1.0)
 
     @abstractmethod
     def chooseBestCandidate(self): pass
@@ -270,7 +281,7 @@ class MaxQuantityOfInformationNBVAlgorithm(NextBestViewAlgorithm):
 
 class GBLNBVAlgorithm(NextBestViewAlgorithm):
     """Based on Gonzales-Banos-Latombe (GBL) evaluation function"""
-    lambda = 0.2
+    _lambda = 0.2
 
     def chooseBestCandidate(self):
         self.bestCandidate = None
@@ -288,7 +299,7 @@ class GBLNBVAlgorithm(NextBestViewAlgorithm):
             distance = self.computePathLength(plan_response.plan)
             quantityInformation = self.quantityOfInformation(eachCandidate)
             # Compute the utility of eachCandidate
-            utility = distance * exp (- self.lambda * quantityInformation)
+            utility = distance * exp (- _lambda * quantityInformation)
             if (utility>maxUtility):
                 maxUtility = utility
                 self.bestCandidate = eachCandidate
@@ -349,7 +360,7 @@ def main(argv):
     classToLaunch = argv[1]
     print(classToLaunch)
     nbv = getattr(sys.modules[__name__], classToLaunch)()
-    nbv.run()
+    nbv.watch()
     return 0
 
 if __name__ == "__main__":
