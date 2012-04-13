@@ -281,26 +281,32 @@ class MaxQuantityOfInformationNBVAlgorithm(NextBestViewAlgorithm):
 
 class GBLNBVAlgorithm(NextBestViewAlgorithm):
     """Based on Gonzales-Banos-Latombe (GBL) evaluation function"""
-    _lambda = 0.2
-
     def chooseBestCandidate(self):
+        #Wait for the availability of this service
+        rospy.wait_for_service('move_base/make_plan')
+        #Get a proxy to execute the service
+        make_plan = rospy.ServiceProxy('move_base/make_plan', GetPlan)
+
         self.bestCandidate = None
         start = PoseStamped()
         start.header.frame_id = "map"
         start.pose = self.robot_pose
         goal = PoseStamped()
-        start.header.frame_id = "map"
+        goal.header.frame_id = "map"
         tolerance = 0.0
         maxUtility = 0.0
-        # Maximize the utility
-        for eachCandidate in candidates.values():
+        _lambda = 0.2
+        #Find the candidate with the shortest path
+        for eachCandidate in self.candidates.values():
+            #Execute service for each candidates
             goal.pose = eachCandidate
             plan_response = make_plan(start = start, goal = goal, tolerance = tolerance)
-            distance = self.computePathLength(plan_response.plan)
-            quantityInformation = self.quantityOfInformation(eachCandidate)
+            #Compute the length of the path
+            pathLength = self.computePathLength(plan_response.plan)
+            quantityInformation = self.quantityOfNewInformation(eachCandidate)
             # Compute the utility of eachCandidate
-            utility = distance * exp (- _lambda * quantityInformation)
-            if (utility>maxUtility):
+            utility = pathLength * math.exp(- _lambda * quantityInformation)
+            if utility > maxUtility:
                 maxUtility = utility
                 self.bestCandidate = eachCandidate
 
