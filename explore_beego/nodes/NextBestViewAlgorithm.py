@@ -49,6 +49,7 @@ class DumpPlot(object):
         elapsed_time = time.time() - self._time
         self._file.write(" %f , %f , %f \n"%(explored, distance, elapsed_time))
         self._file.flush()
+        return elapsed_time
     def __del__(self):
         self._file.close()
 
@@ -103,7 +104,10 @@ class NextBestViewAlgorithm(threading.Thread):
         self.start()
         self.plot = DumpPlot(self.className)
         while self.exploring:
-            self.dump()
+            elapsed_time = self.dump()
+            if elapsed_time > 300:
+                print("timeout 5 min")
+                break
             rospy.sleep(1.0)
         rospy.signal_shutdown(self._node_name)
 
