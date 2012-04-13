@@ -43,7 +43,7 @@ class DumpPlot(object):
     def __init__(self, name="na"):
         self._time = time.time()
         self._file = open("plot.%s.%i.csv"%(name, int(self._time)), "w")
-        self._file.write("explored , distance , time , , %% explored , , with x env\n")
+        self._file.write("explored , distance , time , , % explored , , with x env\n")
     def dump(self, x, y):
         if x and y:
             delta = time.time() - self._time
@@ -61,7 +61,7 @@ class NextBestViewAlgorithm(object):
     bestCandidate = None
     client = None
     pourcentageOfKnownEnv = 0.0
-    maxPourcentageofCoverage = 0.90
+    maxPourcentageofCoverage = 0.08
     robot_pose = None
     occupancy_grid = None
     distance_traveled = 0.0
