@@ -268,6 +268,31 @@ class MaxQuantityOfInformationNBVAlgorithm(NextBestViewAlgorithm):
                 maxQuantityOfInformation = q
                 self.bestCandidate = eachCandidate
 
+class GBLNBVAlgorithm(NextBestViewAlgorithm):
+    """Based on Gonzales-Banos-Latombe (GBL) evaluation function"""
+    lambda = 0.2
+
+    def chooseBestCandidate(self):
+        self.bestCandidate = None
+        start = PoseStamped()
+        start.header.frame_id = "map"
+        start.pose = self.robot_pose
+        goal = PoseStamped()
+        start.header.frame_id = "map"
+        tolerance = 0.0
+        maxUtility = 0.0
+        # Maximize the utility
+        for eachCandidate in candidates.values():
+            goal.pose = eachCandidate
+            plan_response = make_plan(start = start, goal = goal, tolerance = tolerance)
+            distance = self.computePathLength(plan_response.plan)
+            quantityInformation = self.quantityOfInformation(eachCandidate)
+            # Compute the utility of eachCandidate
+            utility = distance * exp (- self.lambda * quantityInformation)
+            if (utility>maxUtility):
+                maxUtility = utility
+                self.bestCandidate = eachCandidate
+
 class MCDMPrometheeNBVAlgorithm(NextBestViewAlgorithm):
     """NBVAlgorithm based on PROMETHEE II Multi-criteria decision making method"""
     # name of choosen criteria
