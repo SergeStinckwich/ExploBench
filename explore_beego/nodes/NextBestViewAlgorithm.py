@@ -293,6 +293,11 @@ class GBLNBVAlgorithm(NextBestViewAlgorithm):
                 maxUtility = utility
                 self.bestCandidate = eachCandidate
 
+class MCDMBANBVAlgorithm(NextBestViewAlgorithm):
+    """NBVAlgorithm based on Amigoni and Basilico Multi-criteria decision method"""
+    def chooseBestCandidate(self):
+        pass
+
 class MCDMPrometheeNBVAlgorithm(NextBestViewAlgorithm):
     """NBVAlgorithm based on PROMETHEE II Multi-criteria decision making method"""
     # name of choosen criteria
