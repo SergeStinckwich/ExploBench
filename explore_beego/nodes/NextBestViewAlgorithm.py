@@ -78,6 +78,8 @@ class NextBestViewAlgorithm(threading.Thread):
         rospy.Subscriber('visualization_marker', Marker, self.handle_markers)
         rospy.Subscriber('explore/map', OccupancyGrid, self.handle_occupancy_grid)
         rospy.Subscriber('odom', Odometry, self.handle_odom)
+        self.marker_dbg = rospy.Publisher('visualization_marker', Marker)
+        self.marker_dbg_seq = 0
         sub_once = None
         self.subscriber_laser_once = rospy.Subscriber('base_scan', LaserScan, self.handle_laserscan)
         self.client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
@@ -109,9 +111,9 @@ class NextBestViewAlgorithm(threading.Thread):
             if elapsed_time > 300:
                 print("timeout 5 min !")
                 self.exploring = False
+                self.join(30) # wait for the exploration thread to stop
                 break
             rospy.sleep(1.0)
-        self.join(60) # wait for the thread to stop
         rospy.signal_shutdown(self._node_name)
 
     @abstractmethod
@@ -145,7 +147,7 @@ class NextBestViewAlgorithm(threading.Thread):
     def distance(self, x1, y1, x2, y2):
         return math.sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2))
 
-    def quantityOfNewInformation(self, candidate):
+    def quantityOfNewInformation(self, candidate, marker_id=0):
         # Compute the pourcentage of new information for a candidate
         # TODO: get radius from laser scan topic
         if not self.occupancy_grid:
@@ -157,7 +159,7 @@ class NextBestViewAlgorithm(threading.Thread):
         numberOfUnknownCells = 0.0
         numberOfKnownCells = 0.0
         origin_position = self.occupancy_grid.info.origin.position
-        relative_radius = int(5 / resolution) # self.raduis not same of explore
+        relative_radius = int(1 / resolution) # self.raduis not same of explore
         # 5 = laser range for explore, see explore_costmap.yaml
         relative_position_x = int((candidate.position.x - origin_position.x) /
                                    resolution)
@@ -176,22 +178,44 @@ class NextBestViewAlgorithm(threading.Thread):
         for i in range(scan_min_x, scan_max_x):
             for j in range(scan_min_y, scan_max_y):
                 #Test that we are in the disk
-                if self.distance(i, j, relative_position_x, relative_position_y) < relative_radius:
-                    data_pose = j * width + i
-                    if (data[data_pose] == -1):
-                        numberOfUnknownCells += 1
-                    else:
-                        numberOfKnownCells += 1
+                #if self.distance(i, j, relative_position_x, relative_position_y) < relative_radius:
+                data_pose = j * width + i
+                if (data[data_pose] == -1):
+                    numberOfUnknownCells += 1
+                else:
+                    numberOfKnownCells += 1
 
         print("known cells: %i unknown cells: %i"%(numberOfKnownCells, numberOfUnknownCells))
-        return numberOfUnknownCells / (numberOfKnownCells + numberOfUnknownCells)
+        res = numberOfUnknownCells / (numberOfKnownCells + numberOfUnknownCells)
+        # http://ros.org/wiki/rviz/DisplayTypes/Marker#View-Oriented_Text_.28TEXT_VIEW_FACING.3D9.29_.5B1.1.2B-.5D
+        dbg = Marker()
+        self.marker_dbg_seq += 1
+        dbg.id = marker_id
+        dbg.pose = candidate
+        dbg.text = str(res)
+        dbg.type = Marker.TEXT_VIEW_FACING
+        dbg.header.frame_id = "map"
+        dbg.header.seq = self.marker_dbg_seq
+        dbg.header.stamp = rospy.Time.now()
+        dbg.action = Marker.ADD
+        dbg.ns = "dbg"
+        dbg.color.r = 1
+        dbg.color.a = .5
+        dbg.scale.z = 1
+        dbg.lifetime.secs = 30
+        self.marker_dbg.publish(dbg)
+        return res
 
     def distanceToBaseStation(self, candidate_pose):
         """We consider that the base station is located at the same position than the robot at the beginning"""
         return self.distanceBetweenPose(base_station_pose, candidate_pose)
 
     def moveToBestCandidateLocation(self):
-        """Use the navigation stack to move to the goal"""
+        """Use the navigation stack to move to the goal
+
+        http://ros.org/wiki/move_base#Action_API
+        http://ros.org/wiki/actionlib#Python_SimpleActionClient
+        """
 
         if not self.bestCandidate:
             rospy.loginfo('No best candidate')
@@ -208,13 +232,17 @@ class NextBestViewAlgorithm(threading.Thread):
             self.client.send_goal(goal)
 
             # Waits for the server to finish performing the action.
-            self.client.wait_for_result() # timeout: rospy.Duration.from_sec(5.0)
+            goal_finished = False
+            while not goal_finished and self.exploring:
+                goal_finished = self.client.wait_for_result(rospy.Duration.from_sec(5.0))
 
     @property
     def className(self):
         return self.__class__.__name__
 
     def handle_markers(self, marker):
+        if marker.ns != "frontiers":
+            return
         if marker.action == Marker.DELETE:
             if marker.id in self.candidates:
                 self.candidates.pop(marker.id)
@@ -285,12 +313,19 @@ class MaxQuantityOfInformationNBVAlgorithm(NextBestViewAlgorithm):
     """NBVAlgorithm based on the criteria of quantity of information"""
     def chooseBestCandidate(self):
         maxQuantityOfInformation = 0.0
+<<<<<<< HEAD
         self.bestCandidate = None
         q = 0.0
         for eachCandidate in self.candidates.values():
             q = self.quantityOfNewInformation(eachCandidate)
             print("One candidate with quantity of new information =%f"%q)
             if q >= maxQuantityOfInformation:
+=======
+        for (marker_id, eachCandidate) in self.candidates.items():
+            q = self.quantityOfNewInformation(eachCandidate, marker_id)
+            print("quantityOfNewInformation: %f"%q)
+            if q > maxQuantityOfInformation:
+>>>>>>> cea71c3920155c82472f5700b75e62fe0c7b37fc
                 maxQuantityOfInformation = q
                 self.bestCandidate = eachCandidate
         if self.bestCandidate:
@@ -316,13 +351,13 @@ class GBLNBVAlgorithm(NextBestViewAlgorithm):
         maxUtility = 0.0
         _lambda = 0.2
         #Find the candidate with the shortest path
-        for eachCandidate in self.candidates.values():
+        for (marker_id, eachCandidate) in self.candidates.items():
             #Execute service for each candidates
             goal.pose = eachCandidate
             plan_response = make_plan(start = start, goal = goal, tolerance = tolerance)
             #Compute the length of the path
             pathLength = self.computePathLength(plan_response.plan)
-            quantityInformation = self.quantityOfNewInformation(eachCandidate)
+            quantityInformation = self.quantityOfNewInformation(eachCandidate, marker_id)
             # Compute the utility of eachCandidate
             utility = pathLength * math.exp(- _lambda * quantityInformation)
             if utility > maxUtility:
@@ -386,14 +421,14 @@ class MCDMPrometheeNBVAlgorithm(NextBestViewAlgorithm):
         tolerance = 0.0
         # Evaluation of each candidates for each criteria used
         c = []        #Find the candidate with the shortest path
-        for eachCandidate in self.candidates.values():
+        for (marker_id, eachCandidate) in self.candidates.items():
             #Execute service for each candidates
             goal.pose = eachCandidate
             plan_response = make_plan(start = start, goal = goal, tolerance = tolerance)
             #Compute the length of the path
             distance = self.computePathLength(plan_response.plan)
             # Compute new quantity of information criteria for the candidate
-            qi = self.quantityOfNewInformation(eachCandidate)
+            qi = self.quantityOfNewInformation(eachCandidate, marker_id)
             # We negated Distance because we want to minimize this criteria
             c.append({'Distance': - distance, 'QuantityOfInformation': qi * 100, 'pose':eachCandidate})
         # Suppresion of candidates that are not on Pareto front
