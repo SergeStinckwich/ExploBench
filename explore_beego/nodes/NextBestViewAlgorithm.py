@@ -78,6 +78,8 @@ class NextBestViewAlgorithm(threading.Thread):
         rospy.Subscriber('visualization_marker', Marker, self.handle_markers)
         rospy.Subscriber('explore/map', OccupancyGrid, self.handle_occupancy_grid)
         rospy.Subscriber('odom', Odometry, self.handle_odom)
+        self.marker_dbg = rospy.Publisher('visualization_marker_dbg', Marker)
+        self.marker_dbg_id = 0
         sub_once = None
         self.subscriber_laser_once = rospy.Subscriber('base_scan', LaserScan, self.handle_laserscan)
         self.client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
@@ -157,7 +159,7 @@ class NextBestViewAlgorithm(threading.Thread):
         numberOfUnknownCells = 0.0
         numberOfKnownCells = 0.0
         origin_position = self.occupancy_grid.info.origin.position
-        relative_radius = int(5 / resolution) # self.raduis not same of explore
+        relative_radius = int(1 / resolution) # self.raduis not same of explore
         # 5 = laser range for explore, see explore_costmap.yaml
         relative_position_x = int((candidate.position.x - origin_position.x) /
                                    resolution)
@@ -176,15 +178,27 @@ class NextBestViewAlgorithm(threading.Thread):
         for i in range(scan_min_x, scan_max_x):
             for j in range(scan_min_y, scan_max_y):
                 #Test that we are in the disk
-                if self.distance(i, j, relative_position_x, relative_position_y) < relative_radius:
-                    data_pose = j * width + i
-                    if (data[data_pose] == -1):
-                        numberOfUnknownCells += 1
-                    else:
-                        numberOfKnownCells += 1
+                #if self.distance(i, j, relative_position_x, relative_position_y) < relative_radius:
+                data_pose = j * width + i
+                if (data[data_pose] == -1):
+                    numberOfUnknownCells += 1
+                else:
+                    numberOfKnownCells += 1
 
         print("known cells: %i unknown cells: %i"%(numberOfKnownCells, numberOfUnknownCells))
-        return numberOfUnknownCells / (numberOfKnownCells + numberOfUnknownCells)
+        res = numberOfUnknownCells / (numberOfKnownCells + numberOfUnknownCells)
+        dbg = Marker()
+        self.marker_dbg_id += 1
+        dbg.id = self.marker_dbg_id
+        dbg.pose = candidate
+        dbg.text = str(res)
+        dbg.type = Marker.TEXT_VIEW_FACING
+        dbg.header.frame_id = "map"
+        dbg.header.seq = self.marker_dbg_id
+        dbg.action = Marker.ADD
+        dbg.ns = "dbg"
+        self.marker_dbg.publish(dbg)
+        return res
 
     def distanceToBaseStation(self, candidate_pose):
         """We consider that the base station is located at the same position than the robot at the beginning"""
