@@ -27,6 +27,7 @@ for algo in $ALGOS; do
         sleep 2
     done
     echo "done $i sim with $algo"
+    exit 0 # tmp
 done
 
 echo "done!"
