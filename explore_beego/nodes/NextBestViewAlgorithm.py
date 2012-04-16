@@ -286,13 +286,17 @@ class MaxQuantityOfInformationNBVAlgorithm(NextBestViewAlgorithm):
     def chooseBestCandidate(self):
         maxQuantityOfInformation = 0.0
         self.bestCandidate = None
+        q = 0.0
         for eachCandidate in self.candidates.values():
             q = self.quantityOfNewInformation(eachCandidate)
             print("One candidate with quantity of new information =%f"%q)
             if q >= maxQuantityOfInformation:
                 maxQuantityOfInformation = q
                 self.bestCandidate = eachCandidate
-        print("Best candidate / Quantity of new information = %f"%q)
+        if self.bestCandidate = None:
+            print("No best candidate")
+        else:
+            print("Best candidate / Quantity of new information = %f"%q)
 
 class GBLNBVAlgorithm(NextBestViewAlgorithm):
     """Based on Gonzales-Banos-Latombe (GBL) evaluation function"""
