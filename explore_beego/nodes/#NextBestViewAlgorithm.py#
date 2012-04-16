@@ -49,7 +49,6 @@ class DumpPlot(object):
         elapsed_time = time.time() - self._time
         self._file.write(" %f , %f , %f \n"%(explored, distance, elapsed_time))
         self._file.flush()
-        return elapsed_time
     def __del__(self):
         self._file.close()
 
@@ -88,8 +87,7 @@ class NextBestViewAlgorithm(threading.Thread):
         # listening for goals.
         self.client.wait_for_server()
 
-        while self.exploring and \
-                self.pourcentageOfKnownEnv < self.maxPourcentageofCoverage:
+        while self.pourcentageOfKnownEnv < self.maxPourcentageofCoverage:
             self.chooseBestCandidate()
             self.moveToBestCandidateLocation()
             print("pourcentage of known env: %.2f%%"%(self.pourcentageOfKnownEnv*1000))
@@ -98,20 +96,15 @@ class NextBestViewAlgorithm(threading.Thread):
         self.exploring = False
 
     def dump(self):
-        return self.plot.dump(self.computePourcentageOfKnownEnv()*1000,
-                              self.distance_traveled)
+        self.plot.dump(self.computePourcentageOfKnownEnv()*1000,
+                       self.distance_traveled)
 
     def watch(self):
         self.start()
         self.plot = DumpPlot(self.className)
         while self.exploring:
-            elapsed_time = self.dump()
-            if elapsed_time > 300:
-                print("timeout 5 min !")
-                self.exploring = False
-                break
+            self.dump()
             rospy.sleep(1.0)
-        self.join(60) # wait for the thread to stop
         rospy.signal_shutdown(self._node_name)
 
     @abstractmethod
@@ -285,13 +278,12 @@ class MaxQuantityOfInformationNBVAlgorithm(NextBestViewAlgorithm):
     """NBVAlgorithm based on the criteria of quantity of information"""
     def chooseBestCandidate(self):
         maxQuantityOfInformation = 0.0
-        self.bestCandidate = None
         for eachCandidate in self.candidates.values():
             q = self.quantityOfNewInformation(eachCandidate)
-            if q >= maxQuantityOfInformation:
+            print("quantityOfNewInformation: %f"%q)
+            if q > maxQuantityOfInformation:
                 maxQuantityOfInformation = q
                 self.bestCandidate = eachCandidate
-        print("quantityOfNewInformation: %f"%q)
 
 class GBLNBVAlgorithm(NextBestViewAlgorithm):
     """Based on Gonzales-Banos-Latombe (GBL) evaluation function"""
@@ -355,6 +347,11 @@ class MCDMBANBVAlgorithm(NextBestViewAlgorithm):
             if (utility>maxUtility):
                 maxUtility = utility
                 self.bestCandidate = eachCandidate
+
+
+
+        for eachCandidate in candidates.values()
+
 
 class MCDMPrometheeNBVAlgorithm(NextBestViewAlgorithm):
     """NBVAlgorithm based on PROMETHEE II Multi-criteria decision making method"""
