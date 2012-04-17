@@ -55,12 +55,16 @@ class FrontierDetector(object):
         if (pose >= self.width * self.height - self.width - 1) and (pose < self.width * self.height):
             return([pose - 1 - self.width, pose - self.width, pose + 1 - self.width,
                     pose - 1                                , pose + 1])
-        # border left
-        if (pose == self.width*self.height):
-            return([])
         # border right
-        if (pose == self.width*self.height):
-            return([])
+        if ((pose+1) % self.width == 0):
+            return([pose - 1 - self.width, pose - self.width,
+                    pose - 1,
+                    pose - 1 + self.width, pose + self.width])
+        # border left
+        if (pose % self. width == 0):
+            return([pose - self.width, pose + 1 - self.width,
+                                       pose + 1,
+                    pose + self.width, pose + 1 + self.width])
         # else
         return ([pose-1, pose+1, pos_above-1, pos_above,
                  pos_above+1, pos_below-1, pos_below, pos_below+1])
@@ -189,6 +193,34 @@ class FrontierDetectorTest(unittest.TestCase):
         expected = [20, 21, 22,
                     26,     28]
         self.assertEquals(expected, f.adj(27))
+
+    def test_cell_on_the_border_right(self):
+        width = 6
+        height = 5
+        data = [-1, -1, -1, -1, -1, -1,
+                -1, -1, -1, -1, -1, -1,
+                -1, -1,  0,  0, -1, -1,
+                -1, -1,  0,  0, -1, -1,
+                -1, -1, -1, -1, -1, -1]
+        f = FrontierDetector(data, width, height)
+        expected = [10, 11,
+                    16,  
+                    22, 23]
+        self.assertEquals(expected, f.adj(17))
+
+    def test_cell_on_the_border_left(self):
+        width = 6
+        height = 5
+        data = [-1, -1, -1, -1, -1, -1,
+                -1, -1, -1, -1, -1, -1,
+                -1, -1,  0,  0, -1, -1,
+                -1, -1,  0,  0, -1, -1,
+                -1, -1, -1, -1, -1, -1]
+        f = FrontierDetector(data, width, height)
+        expected = [6 ,  7,
+                        13, 
+                    18, 19]
+        self.assertEquals(expected, f.adj(12))
 
     def test_no_frontier_when_everything_is_unknown(self):
         width = 6
