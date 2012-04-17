@@ -313,19 +313,10 @@ class MaxQuantityOfInformationNBVAlgorithm(NextBestViewAlgorithm):
     """NBVAlgorithm based on the criteria of quantity of information"""
     def chooseBestCandidate(self):
         maxQuantityOfInformation = 0.0
-<<<<<<< HEAD
-        self.bestCandidate = None
-        q = 0.0
-        for eachCandidate in self.candidates.values():
-            q = self.quantityOfNewInformation(eachCandidate)
-            print("One candidate with quantity of new information =%f"%q)
-            if q >= maxQuantityOfInformation:
-=======
         for (marker_id, eachCandidate) in self.candidates.items():
             q = self.quantityOfNewInformation(eachCandidate, marker_id)
             print("quantityOfNewInformation: %f"%q)
             if q > maxQuantityOfInformation:
->>>>>>> cea71c3920155c82472f5700b75e62fe0c7b37fc
                 maxQuantityOfInformation = q
                 self.bestCandidate = eachCandidate
         if self.bestCandidate:
