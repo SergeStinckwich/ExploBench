@@ -86,7 +86,8 @@ class FrontierDetector(object):
         map_open_list = 1
         map_close_list = 2
         frontier_open_list = 3
-        
+        frontier_close_list = 4
+
         # list of frontiers
         frontiers = []
 
@@ -103,21 +104,22 @@ class FrontierDetector(object):
                 qf = Queue.Queue()
                 new_frontier = []
                 qf.put(p)
-                mark(p, frontier_open_list)
+                self.mark[p] = frontier_open_list
                 while (not(qf.empty())):
                     q = qf.get()
                     m = self.mark[q]
                     if (m == map_close_list) or (m == frontier_close_list):
                         pass
-                    elif (q.is_a_frontier_point()):
+                    elif (self.is_a_frontier_point(q)):
                         new_frontier.append(q) # add q to the new frontier
                         for each_pose in self.adj(q):
                             m = self.mark[each_pose]
                             if (m != frontier_open_list) and (m != frontier_close_list) and (m != map_close_list):
                                 qf.put(each_pose)
                                 self.mark[each_pose] = frontier_open_list
-                    mark(q, frontier_close_list)
-                    frontiers.append(new_frontier)
+                    self.mark[q] = frontier_close_list
+                    if not(new_frontier in frontiers):
+                        frontiers.append(new_frontier)
             for each_pose in self.adj(p):
                 m = self.mark[each_pose]
                 if (m != map_open_list) and (m != map_close_list) and (self.one_of_my_neighbours_is_map_open_space(each_pose)):
@@ -260,14 +262,16 @@ class FrontierDetectorTest(unittest.TestCase):
                 -1, -1,  0,  0, -1, -1,
                 -1, -1, -1, -1, -1, -1,
                 -1, -1, -1, -1, -1, -1]
-        expected = [7 , 8,  9, 10,
-                    13,        16,
-                    19,        22,
-                    25,26, 27, 28]
+        expected = [7 , 8, 9,10,
+                    13,      16,
+                    19,      22,
+                    25,26,27,28]
         f = FrontierDetector(data, width, height)
         for each_pose in expected:
             self.assertEquals(True, f.is_a_frontier_point(each_pose))
-
+        print f.wavefront_frontier_detector(12)
+        self.assertEquals(expected, (f.wavefront_frontier_detector(12)))
+        
     def test_number_of_adjacent_cells_is_8(self):
         width = 6
         height = 6
