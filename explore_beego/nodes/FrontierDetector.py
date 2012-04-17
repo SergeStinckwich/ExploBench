@@ -13,14 +13,13 @@ class FrontierDetector(object):
 
     def is_a_frontier_point(self, pose):
         # Return True if unknown and one of the neightbours is known
-        print pose
         if (self.data[pose] == -1):
             pos_above = pose - self.width
             pos_below = pose + self.width
-
-            return ( self.data[pose-1] == 0 or self.data[pose+1] == 0 or 
-                     self.data[pos_above-1] == 0 or self.data[pos_above] == 0 or self.data[pos_above+1] == 0 or 
-                     self.data[pos_below-1] == 0 or self.data[pos_below] == 0 or self.data[pos_below+1] == 0)
+            adj = self. adj(pose)
+            for each_pose in adj:
+                if self.data[each_pose] == 0:
+                    return True
         return False
 
     def adj(self, pose):
@@ -53,11 +52,9 @@ class FrontierDetector(object):
             return([pose - 1,                                 pose + 1,
                     pose - 1 + self.width, pose + self.width, pose + 1 + self.width])
         # border down
-        if (pose == self.width * self.height):
-            return([])
-        # border top
-        if (pose < self.width*self.height):
-            return([])
+        if (pose >= self.width * self.height - self.width - 1) and (pose < self.width * self.height):
+            return([pose - 1 - self.width, pose - self.width, pose + 1 - self.width,
+                    pose - 1                                , pose + 1])
         # border left
         if (pose == self.width*self.height):
             return([])
@@ -70,11 +67,13 @@ class FrontierDetector(object):
 
     def one_of_my_neighbours_is_map_open_space(self, pose):
         map_open_space = 0
-        pos_above = position - self.width
-        pos_below = position + self.width
-        return ( self.data[position-1] == map_open_space or self.data[position+1] == map_open_space or 
-                 self.data[pos_above-1] == map_open_space or self.data[pos_above] == map_open_space or self.data[pos_above+1] == map_open_space or 
-                 self.data[pos_below-1] == map_open_space or self.data[pos_below] == map_open_space or self.data[pos_below+1] == map_open_space)
+        pos_above = pose - self.width
+        pos_below = pose + self.width
+        adj = self.adj(pose)
+        for each_pose in adj:
+            if self.data[each_pose] == map_open_space:
+                return True
+        return False
 
     def wavefront_frontier_detector(self, pose):
         """WFD algorithm implementation (see paper Fast Frontier Detection for Robot Exploration)"""
@@ -243,6 +242,6 @@ class FrontierDetectorTest(unittest.TestCase):
         data = [-1]*width*height
         f = FrontierDetector(data, width, height)
         self.assertEquals(8, len(f.adj(9)))
-                                      
+         
 if __name__ == "__main__":
     unittest.main(exit=False)
