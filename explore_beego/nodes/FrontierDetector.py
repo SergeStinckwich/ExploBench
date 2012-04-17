@@ -12,25 +12,16 @@ class FrontierDetector(object):
         self.height = height
 
     def is_a_frontier_point(self, pose):
-        position = self.position_1d(pose)
         # Return True if unknown and one of the neightbours is known
-        if (self.data[position] == -1):
-            pos_above = position - self.width
-            pos_below = position + self.width
-            return ( self.data[position-1] == 0 or self.data[position+1] == 0 or 
+        print pose
+        if (self.data[pose] == -1):
+            pos_above = pose - self.width
+            pos_below = pose + self.width
+
+            return ( self.data[pose-1] == 0 or self.data[pose+1] == 0 or 
                      self.data[pos_above-1] == 0 or self.data[pos_above] == 0 or self.data[pos_above+1] == 0 or 
                      self.data[pos_below-1] == 0 or self.data[pos_below] == 0 or self.data[pos_below+1] == 0)
         return False
-
-    def position_1d(self, pose):
-        return (pose[0]+pose[1]*self.width)
-
-    def mark(self, pose, value):
-        # Mark a pose with a value
-        mark[self.position_1d(pose)] = value
-
-    def mark(self,pose):
-        return(mark[self.position_1d(pose)])
 
     def adj(self, pose):
         # return adjacents poses to pose
@@ -57,11 +48,15 @@ class FrontierDetector(object):
             return([self.width * self.height - self.width - 2,
                     self.width * self.height - self.width - 1,
                     self.width * self.height - 2])
+        # border top
+        if (pose < self.width):
+            return([pose - 1,                                 pose + 1,
+                    pose - 1 + self.width, pose + self.width, pose + 1 + self.width])
         # border down
         if (pose == self.width * self.height):
             return([])
-        # border up
-        if (pose == self.width*self.height):
+        # border top
+        if (pose < self.width*self.height):
             return([])
         # border left
         if (pose == self.width*self.height):
@@ -92,14 +87,14 @@ class FrontierDetector(object):
         # list of frontiers
         frontiers = []
 
-        self.mark = [map_open_space]*width*height
+        self.mark = [map_open_space]*self.width*self.height
         
         qm = Queue.Queue()
         qm.put(pose)
-        self.mark(pose, map_open_list)
+        self.mark[pose] = map_open_list
         while (not(qm.empty())):
             p = qm.get()
-            if (self.mark(p) == map_close_list):
+            if (self.mark[p] == map_close_list):
                 pass
             elif self.is_a_frontier_point(p):
                 qf = Queue.Queue()
@@ -108,24 +103,24 @@ class FrontierDetector(object):
                 mark(p, frontier_open_list)
                 while (not(qf.empty())):
                     q = qf.get()
-                    m = mark(q)
+                    m = self.mark[q]
                     if (m == map_close_list) or (m == frontier_close_list):
                         pass
                     elif (q.is_a_frontier_point()):
                         new_frontier.append(q) # add q to the new frontier
                         for each_pose in self.adj(q):
-                            m = mark(each_pose)
+                            m = self.mark[each_pose]
                             if (m != frontier_open_list) and (m != frontier_close_list) and (m != map_close_list):
                                 qf.put(each_pose)
-                                mark(each_pose, frontier_open_list)
+                                self.mark[each_pose] = frontier_open_list
                     mark(q, frontier_close_list)
                     frontiers.append(new_frontier)
             for each_pose in self.adj(p):
-                m = mark(each_pose)
+                m = self.mark[each_pose]
                 if (m != map_open_list) and (m != map_close_list) and (self.one_of_my_neighbours_is_map_open_space(each_pose)):
                     qm.put(each_pose)
-                    mark(each_pose, map_open_list)
-            mark(p, map_close_list)
+                    self.mark[each_pose] = map_open_list
+            self.mark[p] = map_close_list
 
         return(frontiers)
 
@@ -140,8 +135,9 @@ class FrontierDetectorTest(unittest.TestCase):
                 -1, -1,  0,  0, -1, -1,
                 -1, -1, -1, -1, -1, -1]
         f = FrontierDetector(data, width, height)
-        expected = [1, 6, 7]
-        self.assertEquals(3, len(f.adj(0)))
+        expected = [   1,
+                    6, 7]
+        self.assertEquals(expected, f.adj(0))
         
     def test_cell_on_the_corner_right_top(self):
         width = 6
@@ -152,8 +148,9 @@ class FrontierDetectorTest(unittest.TestCase):
                 -1, -1,  0,  0, -1, -1,
                 -1, -1, -1, -1, -1, -1]
         f = FrontierDetector(data, width, height)
-        expected = [5, 11, 12]
-        self.assertEquals(3, len(f.adj(width-1)))
+        expected = [4,
+                    10, 11]
+        self.assertEquals(expected, f.adj(5))
 
     def test_cell_on_the_corner_left_down(self):
         width = 6
@@ -164,10 +161,11 @@ class FrontierDetectorTest(unittest.TestCase):
                 -1, -1,  0,  0, -1, -1,
                 -1, -1, -1, -1, -1, -1]
         f = FrontierDetector(data, width, height)
-        expected = [18, 19, 25]
-        self.assertEquals(3, len(f.adj(24)))
+        expected = [18, 19, 
+                        25]
+        self.assertEquals(expected, f.adj(24))
 
-    def test_cell_on_the_corner_right_down(self):
+    def test_cell_on_the_border_top(self):
         width = 6
         height = 5
         data = [-1, -1, -1, -1, -1, -1,
@@ -176,18 +174,31 @@ class FrontierDetectorTest(unittest.TestCase):
                 -1, -1,  0,  0, -1, -1,
                 -1, -1, -1, -1, -1, -1]
         f = FrontierDetector(data, width, height)
-        expected = [22, 23, 28]
-        self.assertEquals(3, len(f.adj(29)))
+        expected = [1,    3, 
+                    7, 8, 9]
+        self.assertEquals(expected, f.adj(2))
+
+    def test_cell_on_the_border_down(self):
+        width = 6
+        height = 5
+        data = [-1, -1, -1, -1, -1, -1,
+                -1, -1, -1, -1, -1, -1,
+                -1, -1,  0,  0, -1, -1,
+                -1, -1,  0,  0, -1, -1,
+                -1, -1, -1, -1, -1, -1]
+        f = FrontierDetector(data, width, height)
+        expected = [20, 21, 22,
+                    26,     28]
+        self.assertEquals(expected, f.adj(27))
 
     def test_no_frontier_when_everything_is_unknown(self):
-        width = 50
-        height = 30
+        width = 6
+        height = 5
         data = [-1]*width*height
         expected = []
         f = FrontierDetector(data, width, height)
-        for i in range(0, width-1):
-            for j in range(0, height-1):
-                self.assertEquals(False, f.is_a_frontier_point([i,j]))
+        for each_pose in range(0, width*height-1):
+                self.assertEquals(False, f.is_a_frontier_point(each_pose))
 
     def test_cell00_has_3_adjacent_cells(self):
         width = 6
@@ -201,6 +212,14 @@ class FrontierDetectorTest(unittest.TestCase):
         f = FrontierDetector(data, width, height)
         self.assertEquals(3, len(f.adj(0)))
 
+    def test_unknown_env_has_no_frontiers(self):
+        width = 6
+        height = 6
+        data = [-1]*width*height
+        f = FrontierDetector(data, width, height)
+        pose = 15
+        self.assertEquals([], f.wavefront_frontier_detector(pose))
+
     def test_known_square_4x4_in_center_6x6_grid_are_frontiers_points(self):
         width = 6
         height = 6
@@ -210,10 +229,10 @@ class FrontierDetectorTest(unittest.TestCase):
                 -1, -1,  0,  0, -1, -1,
                 -1, -1, -1, -1, -1, -1,
                 -1, -1, -1, -1, -1, -1]
-        expected = [(1,1), (1,2), (1,3), (1,4),
-                    (2,1),               (2,4),
-                    (3,1),               (3,4),
-                    (4,1), (4,2), (4,3), (4,4)]
+        expected = [7 , 8,  9, 10,
+                    13,        16,
+                    19,        22,
+                    25,26, 27, 28]
         f = FrontierDetector(data, width, height)
         for each_pose in expected:
             self.assertEquals(True, f.is_a_frontier_point(each_pose))
