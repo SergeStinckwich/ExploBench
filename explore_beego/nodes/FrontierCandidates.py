@@ -63,9 +63,10 @@ class FrontierCandidates(object):
                 candidate = f.centroid(eachFrontier)
                 self.add_marker(candidate, i)
 
-    def main(self):
-        run()
-        return 0
+def main(argv):
+    fc = FrontierCandidates()
+    fc.run()
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
