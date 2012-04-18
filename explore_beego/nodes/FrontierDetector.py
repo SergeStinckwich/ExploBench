@@ -272,21 +272,41 @@ class FrontierDetectorTest(unittest.TestCase):
         robot_pose = 23
         frontier = f.wavefront_frontier_detector(robot_pose)[0]
         self.assertEquals(robot_pose, f.centroid(frontier))
-
+        
     def test_with_2_frontiers(self):
-        width = 7
-        height = 7
-        data = [-1, -1, -1, -1, -1, -1, -1,
-                -1, -1,  1,  1,  1, -1, -1,
-                -1, -1,  0,  0,  0, -1, -1,
-                -1, -1,  0,  0,  0, -1, -1,
-                -1, -1,  0,  0,  0, -1, -1,
-                -1, -1,  1,  1,  1, -1, -1,
-                -1, -1, -1, -1, -1, -1, -1]
+        width = 9
+        height = 9
+        data = [-1, -1, -1, -1, -1, -1, -1, -1, -1,
+                -1, -1, -1,  1,  1,  1, -1, -1, -1,
+                -1, -1,  0,  0,  0,  0,  0, -1, -1,
+                -1, -1,  0,  0,  0,  0,  0, -1, -1,
+                -1, -1,  0,  0,  0,  0,  0, -1, -1,
+                -1, -1,  0,  0,  0,  0,  0, -1, -1,
+                -1, -1,  0,  0,  0,  0,  0, -1, -1,
+                -1, -1, -1,  1,  1,  1, -1, -1, -1,
+                -1, -1, -1, -1,  1, -1, -1, -1, -1]
         f = FrontierDetector(data, width, height)
-        robot_pose = 24
+        robot_pose = 41
         frontiers = f.wavefront_frontier_detector(robot_pose)
         self.assertEquals(2, len(frontiers))
+
+    def test_with_4_frontiers(self):
+        width = 9
+        height = 9
+        data = [-1, -1, -1, -1, -1, -1, -1, -1, -1,
+                -1, -1, -1,  1,  1,  1, -1, -1, -1,
+                -1, -1,  0,  0,  0,  0,  0, -1, -1,
+                -1,  1,  0,  0,  0,  0,  0,  1, -1,
+                -1,  1,  0,  0,  0,  0,  0,  1, -1,
+                -1,  1,  0,  0,  0,  0,  0,  1, -1,
+                -1, -1,  0,  0,  0,  0,  0, -1, -1,
+                -1, -1, -1,  1,  1,  1, -1, -1, -1,
+                -1, -1, -1, -1,  1, -1, -1, -1, -1]
+        f = FrontierDetector(data, width, height)
+        robot_pose = 41
+        frontiers = f.wavefront_frontier_detector(robot_pose)
+        self.assertEquals(4, len(frontiers))
+
 
     def test_unknown_env_has_no_frontiers(self):
         width = 6
