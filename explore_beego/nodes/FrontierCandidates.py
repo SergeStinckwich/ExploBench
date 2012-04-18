@@ -5,6 +5,8 @@ roslib.load_manifest('visualization_msgs')
 roslib.load_manifest('nav_msgs')
 roslib.load_manifest('geometry_msgs')
 roslib.load_manifest('sensor_msgs')
+
+import sys
 import rospy
 from nav_msgs.msg import Odometry
 from nav_msgs.msg import OccupancyGrid
