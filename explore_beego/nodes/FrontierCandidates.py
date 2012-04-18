@@ -11,15 +11,16 @@ from visualization_msgs.msg import Marker
 
 class FrontierCandidates(object):
     robot_pose = None
+    marker_candidates = None
+    marker_seq = 0
 
     def __init__(self):
         self._node_name = "FrontierCandidates"
         rospy.init_node(self._node_name)
-        # rospy.Subscriber('visualization_marker', Marker, self.handle_markers)
         rospy.Subscriber('explore/map', OccupancyGrid, self.handle_occupancy_grid)
         rospy.Subscriber('odom', Odometry, self.handle_odom)
-        self.marker_dbg = rospy.Publisher('visualization_marker', Marker)
-        self.marker_dbg_seq = 0
+        self.marker_candidates = rospy.Publisher('visualization_marker', Marker)
+        self.marker_seq = 0
 
     def handle_odom(self, msg):
             self.robot_pose = msg.pose.pose
@@ -43,7 +44,7 @@ class FrontierCandidates(object):
         marker.color.a = .5
         marker.scale.z = 1
         marker.lifetime.secs = 30
-        self.publisher.publish(marker)
+        self.marker_candidates.publish(marker)
 
     def run(self):
         while True:
