@@ -159,7 +159,7 @@ class NextBestViewAlgorithm(threading.Thread):
         numberOfUnknownCells = 0.0
         numberOfKnownCells = 0.0
         origin_position = self.occupancy_grid.info.origin.position
-        relative_radius = int(1 / resolution) # self.raduis not same of explore
+        relative_radius = int(5 / resolution) # self.raduis not same of explore
         # 5 = laser range for explore, see explore_costmap.yaml
         relative_position_x = int((candidate.position.x - origin_position.x) /
                                    resolution)
