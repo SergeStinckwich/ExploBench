@@ -58,8 +58,10 @@ class FrontierCandidates(object):
             data = self.occupancy_grid.data
             width = self.occupancy_grid.info.width
             height = self.occupancy_grid.info.height
+            resolution = self.occupancy_grid.info.resolution
             f = FrontierDetector(data, width, height)
-            frontiers = f.wavefront_frontier_detector(self.robot_pose)
+            pose1d = int((self.robot_pose.position.x/resolution)*width+(self.robot_pose.position.y/resolution))
+            frontiers = f.wavefront_frontier_detector(pose1d)
             i = 0
             for eachFrontier in frontiers:
                 i = i + 1
