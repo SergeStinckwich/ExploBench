@@ -11,17 +11,22 @@ class FrontierDetector(object):
         self.width = width
         self.height = height
 
-    def is_a_frontier_point(self, pose):
+    def is_a_frontier_point(self, pose_1d):
         # Return True if unknown and one of my neightbours is known
-        if (self.data[pose] == -1):
-            pos_above = pose - self.width
-            pos_below = pose + self.width
-            adj = self. adj(pose)
+        if (self.data[pose_1d] == -1):
+            pos_above = pose_1d - self.width
+            pos_below = pose_1d + self.width
+            adj = self. adj(pose_1d)
             for each_pose in adj:
                 if self.data[each_pose] == 0:
                     return True
         return False
+    
+    def centroid(self, frontier_list):
+        # Return a linear pose
+        return 0
 
+                 
     def adj(self, pose):
         # return adjacents poses to pose
         # in the linear array
@@ -258,17 +263,20 @@ class FrontierDetectorTest(unittest.TestCase):
         for each_pose in range(0, width*height-1):
                 self.assertEquals(False, f.is_a_frontier_point(each_pose))
 
-    def test_cell00_has_3_adjacent_cells(self):
-        width = 6
-        height = 6
-        data = [-1, -1, -1, -1, -1, -1,
-                -1, -1, -1, -1, -1, -1,
-                -1, -1,  0,  0, -1, -1,
-                -1, -1,  0,  0, -1, -1,
-                -1, -1, -1, -1, -1, -1,
-                -1, -1, -1, -1, -1, -1]
+    def test_centroid_is_at_the_center(self):
+        width = 7
+        height = 7
+        data = [-1, -1, -1, -1, -1, -1, -1,
+                -1, -1, -1, -1, -1, -1, -1,
+                -1, -1,  0,  0,  0, -1, -1,
+                -1, -1,  0,  0,  0, -1, -1,
+                -1, -1,  0,  0,  0, -1, -1,
+                -1, -1, -1, -1, -1, -1, -1,
+                -1, -1, -1, -1, -1, -1, -1]
         f = FrontierDetector(data, width, height)
-        self.assertEquals(3, len(f.adj(0)))
+        robot_pose = 24
+        frontier = f.wavefront_frontier_detector(pose)[0]
+        self.assertEquals(robot_pose, self.centroid(frontier))
 
     def test_unknown_env_has_no_frontiers(self):
         width = 6
@@ -311,7 +319,10 @@ class FrontierDetectorTest(unittest.TestCase):
                 -1, -1, -1, -1, -1, -1]
         f = FrontierDetector(data, width, height)
         robot_pose = 14
-        # print f.wavefront_frontier_detector(robot_pose)
+        expected = [7, 8, 9, 10, 11, 13, 17, 23]
+        result = f.wavefront_frontier_detector(robot_pose)[0]
+        result.sort()
+        self.assertEquals(expected, result)
         
     def test_number_of_adjacent_cells_is_8(self):
         width = 6
