@@ -11,12 +11,13 @@ import rospy
 from nav_msgs.msg import Odometry
 from nav_msgs.msg import OccupancyGrid
 from visualization_msgs.msg import Marker
-import FrontierDetector
+from FrontierDetector import FrontierDetector
 
 class FrontierCandidates(object):
     robot_pose = None
     marker_candidates = None
     marker_seq = 0
+    occupancy_grid = None
 
     def __init__(self):
         self._node_name = "FrontierCandidates"
@@ -52,11 +53,13 @@ class FrontierCandidates(object):
 
     def run(self):
         while True:
+            if self.occupancy_grid == None:
+                continue
             data = self.occupancy_grid.data
             width = self.occupancy_grid.info.width
             height = self.occupancy_grid.info.height
             f = FrontierDetector(data, width, height)
-            frontiers = f.wavefront_frontier_detector(robot_pose)
+            frontiers = f.wavefront_frontier_detector(self.robot_pose)
             i = 0
             for eachFrontier in frontiers:
                 i = i + 1
