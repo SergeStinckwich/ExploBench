@@ -132,7 +132,7 @@ class FrontierDetector(object):
                 frontiers.append(new_frontier)
             for each_pose in self.adj(p):
                 m = self.mark[each_pose]
-                if (m != map_open_list) and (m != map_close_list) and (m != frontier_close_list) and (m != frontier_open_list) and self.one_of_my_neighbours_is_map_open_space(each_pose):
+                if (m != map_open_list) and (m != map_close_list) and (m != frontier_close_list) and self.one_of_my_neighbours_is_map_open_space(each_pose):
                     qm.put(each_pose)
                     self.mark[each_pose] = map_open_list
             self.mark[p] = map_close_list
