@@ -1,4 +1,5 @@
-import FrontierDetector
+#!/usr/bin/env python
+
 import roslib
 roslib.load_manifest('visualization_msgs')
 roslib.load_manifest('nav_msgs')
@@ -8,6 +9,7 @@ import rospy
 from nav_msgs.msg import Odometry
 from nav_msgs.msg import OccupancyGrid
 from visualization_msgs.msg import Marker
+import FrontierDetector
 
 class FrontierCandidates(object):
     robot_pose = None
