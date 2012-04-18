@@ -10,7 +10,7 @@ class FrontierDetector(object):
         self.data = data
         self.width = width
         self.height = height
-
+    
     def is_a_frontier_point(self, pose_1d):
         # Return True if unknown and one of my neightbours is known
         if (self.data[pose_1d] == -1):
