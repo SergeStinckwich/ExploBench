@@ -257,6 +257,7 @@ class FrontierDetectorTest(unittest.TestCase):
         frontier = f.wavefront_frontier_detector(robot_pose)[0]
         self.assertEquals(robot_pose, f.centroid(frontier))
 
+
     def test_centroid_is_at_the_center_of_3x3square(self):
         width = 7
         height = 7
@@ -271,6 +272,21 @@ class FrontierDetectorTest(unittest.TestCase):
         robot_pose = 23
         frontier = f.wavefront_frontier_detector(robot_pose)[0]
         self.assertEquals(robot_pose, f.centroid(frontier))
+
+    def test_with_2_frontiers(self):
+        width = 7
+        height = 7
+        data = [-1, -1, -1, -1, -1, -1, -1,
+                -1, -1,  1,  1,  1, -1, -1,
+                -1, -1,  0,  0,  0, -1, -1,
+                -1, -1,  0,  0,  0, -1, -1,
+                -1, -1,  0,  0,  0, -1, -1,
+                -1, -1,  1,  1,  1, -1, -1,
+                -1, -1, -1, -1, -1, -1, -1]
+        f = FrontierDetector(data, width, height)
+        robot_pose = 24
+        frontiers = f.wavefront_frontier_detector(robot_pose)
+        self.assertEquals(2, len(frontiers))
 
     def test_unknown_env_has_no_frontiers(self):
         width = 6
