@@ -12,7 +12,7 @@ class FrontierDetector(object):
         self.height = height
 
     def is_a_frontier_point(self, pose):
-        # Return True if unknown and one of the neightbours is known
+        # Return True if unknown and one of my neightbours is known
         if (self.data[pose] == -1):
             pos_above = pose - self.width
             pos_below = pose + self.width
@@ -70,19 +70,18 @@ class FrontierDetector(object):
                  pos_below - 1  , pos_below, pos_below + 1])
 
     def one_of_my_neighbours_is_map_open_space(self, pose):
-        map_open_space = 0
+        # map_open_space = does not contain an obstacle
         pos_above = pose - self.width
         pos_below = pose + self.width
         adj = self.adj(pose)
         for each_pose in adj:
-            if self.data[each_pose] == map_open_space:
+            if self.data[each_pose] == 0:
                 return True
         return False
 
     def wavefront_frontier_detector(self, pose):
         """WFD algorithm implementation (see paper Fast Frontier Detection for Robot Exploration)"""
         """Returns a list of frontiers"""
-        map_open_space = 0
         map_open_list = 1
         map_close_list = 2
         frontier_open_list = 3
@@ -91,41 +90,67 @@ class FrontierDetector(object):
         # list of frontiers
         frontiers = []
 
-        self.mark = [map_open_space]*self.width*self.height
+        self.mark = [0]*self.width*self.height
         
         qm = Queue.Queue()
         qm.put(pose)
         self.mark[pose] = map_open_list
-        while (not(qm.empty())):
+        print "On enfile :"
+        print pose
+        print "avec la marque map open list"
+        while not(qm.empty()):
             p = qm.get()
-            if (self.mark[p] == map_close_list):
-                pass
-            elif self.is_a_frontier_point(p):
+            print "On defile :"
+            print p
+            print "avec la marque"
+            print self.mark[p]
+            if (self.mark[p] == map_close_list) or (self.mark[p] == frontier_close_list):
+                continue
+            if self.is_a_frontier_point(p):
                 qf = Queue.Queue()
+                print "On construit une nouvelle frontiere"
                 new_frontier = []
                 qf.put(p)
                 self.mark[p] = frontier_open_list
+                print "On enfile :"
+                print p
+                print "avec la marque frontier open list"
                 while (not(qf.empty())):
                     q = qf.get()
                     m = self.mark[q]
+                    print "On defile:"
+                    print q
                     if (m == map_close_list) or (m == frontier_close_list):
-                        pass
-                    elif (self.is_a_frontier_point(q)):
-                        new_frontier.append(q) # add q to the new frontier
+                        continue
+                    if self.is_a_frontier_point(q):
+                        new_frontier.append(q)
+                        print q
+                        print "est ajoute a la frontiere"
                         for each_pose in self.adj(q):
                             m = self.mark[each_pose]
                             if (m != frontier_open_list) and (m != frontier_close_list) and (m != map_close_list):
                                 qf.put(each_pose)
                                 self.mark[each_pose] = frontier_open_list
+                                print "On enfile :"
+                                print each_pose
+                                print "avec la marque frontier open list"
                     self.mark[q] = frontier_close_list
-                    if not(new_frontier in frontiers):
-                        frontiers.append(new_frontier)
+                    print "On met :"
+                    print q
+                    print "avec la marque frontier close list"
+                frontiers.append(new_frontier)
             for each_pose in self.adj(p):
                 m = self.mark[each_pose]
-                if (m != map_open_list) and (m != map_close_list) and (self.one_of_my_neighbours_is_map_open_space(each_pose)):
+                if (m != map_open_list) and (m != map_close_list) and (m != frontier_close_list) and (m != frontier_open_list) and self.one_of_my_neighbours_is_map_open_space(each_pose):
                     qm.put(each_pose)
                     self.mark[each_pose] = map_open_list
+                    print "On enfile :"
+                    print each_pose
+                    print "avec la marque map open list"
             self.mark[p] = map_close_list
+            print "On met :"
+            print p
+            print "avec la marque map close list"
 
         return(frontiers)
 
@@ -269,8 +294,24 @@ class FrontierDetectorTest(unittest.TestCase):
         f = FrontierDetector(data, width, height)
         for each_pose in expected:
             self.assertEquals(True, f.is_a_frontier_point(each_pose))
-        print f.wavefront_frontier_detector(12)
-        self.assertEquals(expected, (f.wavefront_frontier_detector(12)))
+        robot_pose = 14
+        expected = expected
+        result = f.wavefront_frontier_detector(robot_pose)[0]
+        result.sort()
+        self.assertEquals(expected, result)
+
+    def test_a_more_complex_situation(self):
+        width = 6
+        height = 6
+        data = [-1, -1, -1, -1, -1, -1,
+                -1, -1, -1, -1, -1, -1,
+                -1, -1,  0,  0,  0, -1,
+                -1,  1,  0,  0,  1, -1,
+                -1,  1,  1,  1,  1, -1,
+                -1, -1, -1, -1, -1, -1]
+        f = FrontierDetector(data, width, height)
+        robot_pose = 14
+        # print f.wavefront_frontier_detector(robot_pose)
         
     def test_number_of_adjacent_cells_is_8(self):
         width = 6
