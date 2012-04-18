@@ -29,9 +29,8 @@ class FrontierDetector(object):
         pos_below = pose + self.width        
         # corner left top
         if (pose == 0):
-            return([1,
-                    self.width,
-                    self.width+1])
+            return([                  pose + 1,
+                    pose+ self.width, pose + 1 + self.width])
         # corner right top
         if (pose == self.width - 1):
             return([self.width - 2,
@@ -66,8 +65,9 @@ class FrontierDetector(object):
                                        pose + 1,
                     pose + self.width, pose + 1 + self.width])
         # else
-        return ([pose-1, pose+1, pos_above-1, pos_above,
-                 pos_above+1, pos_below-1, pos_below, pos_below+1])
+        return ([pos_above - 1  , pos_above, pos_above + 1,
+                 pose - 1                  , pose + 1, 
+                 pos_below - 1  , pos_below, pos_below + 1])
 
     def one_of_my_neighbours_is_map_open_space(self, pose):
         map_open_space = 0
