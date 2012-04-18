@@ -24,9 +24,16 @@ class FrontierDetector(object):
     
     def centroid(self, frontier_list):
         # Return a linear pose
-        return 0
-
-                 
+        sumx = 0
+        sumy = 0
+        for each_pose in frontier_list:
+            x = each_pose / self.width
+            y = each_pose % self.width
+            sumx = sumx + x
+            sumy = sumy + y
+        result = (sumx/len(frontier_list))* self.width + sumy/len(frontier_list)
+        return result
+         
     def adj(self, pose):
         # return adjacents poses to pose
         # in the linear array
@@ -100,63 +107,35 @@ class FrontierDetector(object):
         qm = Queue.Queue()
         qm.put(pose)
         self.mark[pose] = map_open_list
-        print "On enfile :"
-        print pose
-        print "avec la marque map open list"
         while not(qm.empty()):
             p = qm.get()
-            print "On defile :"
-            print p
-            print "avec la marque"
-            print self.mark[p]
             if (self.mark[p] == map_close_list) or (self.mark[p] == frontier_close_list):
                 continue
             if self.is_a_frontier_point(p):
                 qf = Queue.Queue()
-                print "On construit une nouvelle frontiere"
                 new_frontier = []
                 qf.put(p)
                 self.mark[p] = frontier_open_list
-                print "On enfile :"
-                print p
-                print "avec la marque frontier open list"
                 while (not(qf.empty())):
                     q = qf.get()
                     m = self.mark[q]
-                    print "On defile:"
-                    print q
                     if (m == map_close_list) or (m == frontier_close_list):
                         continue
                     if self.is_a_frontier_point(q):
                         new_frontier.append(q)
-                        print q
-                        print "est ajoute a la frontiere"
                         for each_pose in self.adj(q):
                             m = self.mark[each_pose]
                             if (m != frontier_open_list) and (m != frontier_close_list) and (m != map_close_list):
                                 qf.put(each_pose)
                                 self.mark[each_pose] = frontier_open_list
-                                print "On enfile :"
-                                print each_pose
-                                print "avec la marque frontier open list"
                     self.mark[q] = frontier_close_list
-                    print "On met :"
-                    print q
-                    print "avec la marque frontier close list"
                 frontiers.append(new_frontier)
             for each_pose in self.adj(p):
                 m = self.mark[each_pose]
                 if (m != map_open_list) and (m != map_close_list) and (m != frontier_close_list) and (m != frontier_open_list) and self.one_of_my_neighbours_is_map_open_space(each_pose):
                     qm.put(each_pose)
                     self.mark[each_pose] = map_open_list
-                    print "On enfile :"
-                    print each_pose
-                    print "avec la marque map open list"
             self.mark[p] = map_close_list
-            print "On met :"
-            print p
-            print "avec la marque map close list"
-
         return(frontiers)
 
 class FrontierDetectorTest(unittest.TestCase):
@@ -275,8 +254,23 @@ class FrontierDetectorTest(unittest.TestCase):
                 -1, -1, -1, -1, -1, -1, -1]
         f = FrontierDetector(data, width, height)
         robot_pose = 24
-        frontier = f.wavefront_frontier_detector(pose)[0]
-        self.assertEquals(robot_pose, self.centroid(frontier))
+        frontier = f.wavefront_frontier_detector(robot_pose)[0]
+        self.assertEquals(robot_pose, f.centroid(frontier))
+
+    def test_centroid_is_at_the_center_of_3x3square(self):
+        width = 7
+        height = 7
+        data = [-1, -1, -1, -1, -1, -1, -1,
+                -1, -1, -1, -1, -1, -1, -1,
+                -1,  0,  0,  0, -1, -1, -1,
+                -1,  0,  0,  0, -1, -1, -1,
+                -1,  0,  0,  0, -1, -1, -1,
+                -1, -1, -1, -1, -1, -1, -1,
+                -1, -1, -1, -1, -1, -1, -1]
+        f = FrontierDetector(data, width, height)
+        robot_pose = 23
+        frontier = f.wavefront_frontier_detector(robot_pose)[0]
+        self.assertEquals(robot_pose, f.centroid(frontier))
 
     def test_unknown_env_has_no_frontiers(self):
         width = 6
