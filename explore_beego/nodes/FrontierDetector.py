@@ -99,6 +99,7 @@ class FrontierDetector(object):
         frontiers = []
 
         self.mark = [0]*self.width*self.height
+        #import pdb; pdb.set_trace() # http://docs.python.org/library/pdb.html
 
         qm = Queue.Queue()
         qm.put(pose)

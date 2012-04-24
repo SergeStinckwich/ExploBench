@@ -30,11 +30,12 @@ class FrontierCandidates(object):
     def handle_occupancy_grid(self, msg):
         self.occupancy_grid = msg
 
-    def add_marker(self, pose, marker_id):
+    def add_marker(self, x, y, marker_id):
         marker = Marker()
         self.marker_seq += 1
         marker.id = marker_id
-        marker.pose = pose
+        marker.pose.position.x = x
+        marker.pose.position.y = y
         marker.text = str(marker_id)
         marker.type = Marker.TEXT_VIEW_FACING
         marker.header.frame_id = "map"
@@ -57,15 +58,19 @@ class FrontierCandidates(object):
             width = self.occupancy_grid.info.width
             height = self.occupancy_grid.info.height
             resolution = self.occupancy_grid.info.resolution
+            origin_position = self.occupancy_grid.info.origin.position
             f = FrontierDetector(data, width, height)
-            pose1d = int((self.robot_pose.position.x/resolution)*width+(self.robot_pose.position.y/resolution))
+            # TODO pose 0,0 center -> 0,0 up-left corner
+            pose1d = int(width * (self.robot_pose.position.x - origin_position.x) / resolution +
+                        (self.robot_pose.position.y - origin_position.y) / resolution)
             frontiers = f.wavefront_frontier_detector(pose1d)
             i = 0
-            print(frontiers) # frontiers is empty
             for eachFrontier in frontiers:
-                i = i + 1
+                i += 1
                 candidate = f.centroid(eachFrontier)
-                self.add_marker(candidate, i)
+                x = origin_position.x + (candidate / width) * resolution
+                y = origin_position.y + (candidate % width) * resolution
+                self.add_marker(x, y, i)
             rospy.sleep(0.5)
 
 def main(argv):
