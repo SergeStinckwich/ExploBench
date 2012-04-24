@@ -14,11 +14,6 @@ from visualization_msgs.msg import Marker
 from FrontierDetector import FrontierDetector
 
 class FrontierCandidates(object):
-    robot_pose = None
-    marker_candidates = None
-    marker_seq = 0
-    occupancy_grid = None
-
     def __init__(self):
         self._node_name = "FrontierCandidates"
         rospy.init_node(self._node_name)
@@ -26,6 +21,8 @@ class FrontierCandidates(object):
         rospy.Subscriber('odom', Odometry, self.handle_odom)
         self.marker_candidates = rospy.Publisher('visualization_marker', Marker)
         self.marker_seq = 0
+        self.robot_pose = None
+        self.occupancy_grid = None
 
     def handle_odom(self, msg):
         self.robot_pose = msg.pose.pose
@@ -44,7 +41,7 @@ class FrontierCandidates(object):
         marker.header.seq = self.marker_seq
         marker.header.stamp = rospy.Time.now()
         marker.action = Marker.ADD
-        marker.ns = "marker"
+        marker.ns = "frontier2"
         marker.color.r = 1
         marker.color.a = .5
         marker.scale.z = 1
