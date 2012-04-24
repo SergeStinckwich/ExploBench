@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-import roslib
-roslib.load_manifest('visualization_msgs')
-roslib.load_manifest('nav_msgs')
-roslib.load_manifest('geometry_msgs')
-roslib.load_manifest('sensor_msgs')
-
 import sys
+import roslib
+roslib.load_manifest('rospy')
+roslib.load_manifest('nav_msgs')
+roslib.load_manifest('sensor_msgs')
+roslib.load_manifest('geometry_msgs')
+roslib.load_manifest('visualization_msgs')
 import rospy
 from nav_msgs.msg import Odometry
 from nav_msgs.msg import OccupancyGrid
@@ -28,8 +28,8 @@ class FrontierCandidates(object):
         self.marker_seq = 0
 
     def handle_odom(self, msg):
-            self.robot_pose = msg.pose.pose
-            
+        self.robot_pose = msg.pose.pose
+
     def handle_occupancy_grid(self, msg):
         self.occupancy_grid = msg
 
@@ -53,7 +53,7 @@ class FrontierCandidates(object):
 
     def run(self):
         while True:
-            if self.occupancy_grid == None:
+            if not self.occupancy_grid or not self.robot_pose:
                 continue
             data = self.occupancy_grid.data
             width = self.occupancy_grid.info.width
