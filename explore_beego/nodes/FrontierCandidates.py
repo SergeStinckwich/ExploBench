@@ -38,7 +38,7 @@ class FrontierCandidates(object):
         self.marker_seq += 1
         marker.id = marker_id
         marker.pose = pose
-        marker.text = str(res)
+        marker.text = str(marker_id)
         marker.type = Marker.TEXT_VIEW_FACING
         marker.header.frame_id = "map"
         marker.header.seq = self.marker_seq
@@ -52,8 +52,9 @@ class FrontierCandidates(object):
         self.marker_candidates.publish(marker)
 
     def run(self):
-        while True:
+        while not rospy.is_shutdown():
             if not self.occupancy_grid or not self.robot_pose:
+                rospy.sleep(1.0)
                 continue
             data = self.occupancy_grid.data
             width = self.occupancy_grid.info.width
@@ -63,10 +64,12 @@ class FrontierCandidates(object):
             pose1d = int((self.robot_pose.position.x/resolution)*width+(self.robot_pose.position.y/resolution))
             frontiers = f.wavefront_frontier_detector(pose1d)
             i = 0
+            print(frontiers) # frontiers is empty
             for eachFrontier in frontiers:
                 i = i + 1
                 candidate = f.centroid(eachFrontier)
                 self.add_marker(candidate, i)
+            rospy.sleep(0.5)
 
 def main(argv):
     fc = FrontierCandidates()
