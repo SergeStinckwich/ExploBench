@@ -25,11 +25,11 @@ class FrontierDetector(object):
         sumx = 0
         sumy = 0
         for each_pose in frontier_list:
-            x = each_pose / self.width
-            y = each_pose % self.width
+            x = each_pose % self.width
+            y = each_pose // self.width
             sumx = sumx + x
             sumy = sumy + y
-        result = (sumx/len(frontier_list))* self.width + sumy/len(frontier_list)
+        result = sumy/len(frontier_list)* self.width + sumx/len(frontier_list)
         return result
 
     def adj(self, pose):

@@ -65,11 +65,16 @@ class FrontierCandidates(object):
                         (self.robot_pose.position.y - origin_position.y) / resolution)
             frontiers = f.wavefront_frontier_detector(pose1d)
             i = 0
+            def xy_from_pose1d(p):
+                x = origin_position.x + (p % width) * resolution
+                y = origin_position.y + (p // width) * resolution
+                return (x, y)
+            (x, y) = xy_from_pose1d(pose1d)
+            self.add_marker(x, y, 0)
             for eachFrontier in frontiers:
                 i += 1
                 candidate = f.centroid(eachFrontier)
-                x = origin_position.x + (candidate / width) * resolution
-                y = origin_position.y + (candidate % width) * resolution
+                (x, y) = xy_from_pose1d(candidate)
                 self.add_marker(x, y, i)
             rospy.sleep(0.5)
 
