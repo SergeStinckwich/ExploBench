@@ -21,7 +21,8 @@
   <node pkg="gmapping" type="slam_gmapping" name="gmapping">
     <remap from="scan" to="base_scan" />
   </node>
-  <!--node pkg="explore_beego" type="FrontierCandidates.py" 
+  <!-- TODO see http://ros.org/wiki/gmapping#Parameters for smaller map
+  node pkg="explore_beego" type="FrontierCandidates.py" 
     name="FrontierCandidates"/>
   <node pkg="explore_beego" type="NextBestViewAlgorithm.py" 
     name="NextBestViewAlgorithm" args="GBLNBVAlgorithm"/-->
