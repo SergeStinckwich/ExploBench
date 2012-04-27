@@ -1,13 +1,12 @@
 <package>
   <description brief="Explore demos">Demos for explore package in bosch-ros-pkg</description>
-  <author>Charles DuHadway</author>
+  <author>Pierrick</author>
   <license>BSD</license>
   <review status="na" notes=""/>
-  <url>http://ros.org/wiki/explore_beego</url>
-  <depend package="stage"/>
-  <depend package="explore"/>
+  <url>http://ros.org/wiki/explore_beego2</url>
   <depend package="move_base"/>
   <depend package="gmapping"/>
   <depend package="tf"/>
+  <depend package="explore_beego"/>
 
 </package>

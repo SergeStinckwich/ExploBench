@@ -1,9 +1,0 @@
-<package>
-  <description brief="bosch-ros-pkg maps">
-     Maps supporting bosch-ros-pkg
-  </description>
-  <author>Charles DuHadway (Maintained by Benjamin Pitzer)</author>
-  <license>BSD</license>
-  <review status="unreviewed" notes=""/>
-</package>
-

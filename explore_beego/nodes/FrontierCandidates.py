@@ -17,7 +17,7 @@ class FrontierCandidates(object):
     def __init__(self):
         self._node_name = "FrontierCandidates"
         rospy.init_node(self._node_name)
-        rospy.Subscriber('explore/map', OccupancyGrid, self.handle_occupancy_grid)
+        rospy.Subscriber('map', OccupancyGrid, self.handle_occupancy_grid)
         rospy.Subscriber('odom', Odometry, self.handle_odom)
         self.marker_candidates = rospy.Publisher('visualization_marker', Marker)
         self.marker_seq = 0

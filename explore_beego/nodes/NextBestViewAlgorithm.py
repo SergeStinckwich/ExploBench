@@ -76,13 +76,14 @@ class NextBestViewAlgorithm(threading.Thread):
         self._node_name = "NBV%s"%self.className
         rospy.init_node(self._node_name)
         rospy.Subscriber('visualization_marker', Marker, self.handle_markers)
-        rospy.Subscriber('explore/map', OccupancyGrid, self.handle_occupancy_grid)
+        rospy.Subscriber('map', OccupancyGrid, self.handle_occupancy_grid)
         rospy.Subscriber('odom', Odometry, self.handle_odom)
         self.marker_dbg = rospy.Publisher('visualization_marker', Marker)
         self.marker_dbg_seq = 0
         sub_once = None
         self.subscriber_laser_once = rospy.Subscriber('base_scan', LaserScan, self.handle_laserscan)
         self.client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
+        self.exploring = False
 
     def run(self):
         self.exploring = True
