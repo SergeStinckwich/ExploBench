@@ -1,7 +1,12 @@
 <launch>
   <master auto="start"/>  
+  <remap from="odom" to="beego/odometry" />
+  <remap from="scan" to="beego/scan" />
+
+  <!--remap from="base_scan" to="beego/scan" /-->
   <!--param name="/use_sim_time" value="true"/-->
   <!--node pkg="explore_beego" type="fake_clock.py" name="fake_clock"/-->
+
   <node pkg="tf" type="static_transform_publisher" name="fake_localize" 
         args="0 0 0 0 0 0 map odom 10"/>
   <node pkg="explore_beego" type="tf_odom_base.py" name="tf_odom_base" />
@@ -10,17 +15,12 @@
   <node pkg="tf" type="static_transform_publisher" name="tf_laser" 
         args="0 0 0 0 0 0 base_link base_laser_link 10" />
 
-  <node pkg="explore_beego" type="remap_laser.py" name="remap_laser">
-    <remap from="from" to="beego/scan" />
-    <remap from="to" to="base_scan" />
-  </node>
-  <node pkg="explore_beego" type="remap_odom.py" name="remap_odom">
-    <remap from="from" to="beego/odometry" />
-    <remap from="to" to="odom" />
-  </node>
   <node pkg="gmapping" type="slam_gmapping" name="gmapping">
-    <remap from="scan" to="base_scan" />
+    <param name="xmax" value="20" />
+    <param name="ymax" value="20" />
+    <param name="maxRange" value="5" />
   </node>
+
   <!-- TODO see http://ros.org/wiki/gmapping#Parameters for smaller map
   node pkg="explore_beego" type="FrontierCandidates.py" 
     name="FrontierCandidates"/>
