@@ -51,14 +51,17 @@ class FrontierCandidates(object):
         self.marker_candidates.publish(marker)
 
     def run(self):
-        rospy.wait_for_service('dynamic_map')
-        get_map = rospy.ServiceProxy('dynamic_map', GetMap)
+        #rospy.wait_for_service('dynamic_map')
+        #get_map = rospy.ServiceProxy('dynamic_map', GetMap)
         while not rospy.is_shutdown():
+            import pdb; pdb.set_trace()
             if not self.robot_pose:
+                rospy.sleep(0.5)
                 continue
             if not self.occupancy_grid:
                 # FIXME resp = get_map()
                 #self.occupancy_grid = resp.response.map
+                rospy.sleep(1.0)
                 continue
             data = self.occupancy_grid.data
             width = self.occupancy_grid.info.width
