@@ -242,7 +242,7 @@ class NextBestViewAlgorithm(threading.Thread):
         return self.__class__.__name__
 
     def handle_markers(self, marker):
-        if marker.ns != "frontiers":
+        if marker.ns != "frontier2":
             return
         if marker.action == Marker.DELETE:
             if marker.id in self.candidates:

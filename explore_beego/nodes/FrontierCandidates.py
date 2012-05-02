@@ -10,6 +10,7 @@ roslib.load_manifest('visualization_msgs')
 import rospy
 from nav_msgs.msg import Odometry
 from nav_msgs.msg import OccupancyGrid
+from nav_msgs.srv import GetMap
 from visualization_msgs.msg import Marker
 from FrontierDetector import FrontierDetector
 
@@ -50,9 +51,14 @@ class FrontierCandidates(object):
         self.marker_candidates.publish(marker)
 
     def run(self):
+        rospy.wait_for_service('dynamic_map')
+        get_map = rospy.ServiceProxy('dynamic_map', GetMap)
         while not rospy.is_shutdown():
-            if not self.occupancy_grid or not self.robot_pose:
-                rospy.sleep(1.0)
+            if not self.robot_pose:
+                continue
+            if not self.occupancy_grid:
+                # FIXME resp = get_map()
+                #self.occupancy_grid = resp.response.map
                 continue
             data = self.occupancy_grid.data
             width = self.occupancy_grid.info.width
@@ -69,8 +75,8 @@ class FrontierCandidates(object):
                 x = origin_position.x + (p % width) * resolution
                 y = origin_position.y + (p // width) * resolution
                 return (x, y)
-            (x, y) = xy_from_pose1d(pose1d)
-            self.add_marker(x, y, 0)
+            # FIXME (x, y) = xy_from_pose1d(pose1d)
+            # self.add_marker(x, y, 0)
             for eachFrontier in frontiers:
                 i += 1
                 candidate = f.centroid(eachFrontier)

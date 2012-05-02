@@ -21,9 +21,10 @@
     <param name="maxRange" value="5" />
   </node>
 
-  <!-- TODO see http://ros.org/wiki/gmapping#Parameters for smaller map
-  node pkg="explore_beego" type="FrontierCandidates.py" 
+  <node pkg="move_base" type="move_base" name="move_base"/>
+
+  <node pkg="explore_beego" type="FrontierCandidates.py"
     name="FrontierCandidates"/>
-  <node pkg="explore_beego" type="NextBestViewAlgorithm.py" 
-    name="NextBestViewAlgorithm" args="GBLNBVAlgorithm"/-->
+  <node pkg="explore_beego" type="NextBestViewAlgorithm.py"
+    name="NextBestViewAlgorithm" args="GBLNBVAlgorithm"/>
 </launch>
