@@ -25,11 +25,11 @@ def handle_sick(msg):
     if halt:
         # we go to the highest-range side scanned
         if sum(msg.ranges[:mid]) > sum(msg.ranges[mid:]):
-            cmd.angular.z = -1
+            cmd.angular.z = -.2
         else:
-            cmd.angular.z = 1
+            cmd.angular.z = .2
     else:
-        cmd.linear.x = 1
+        cmd.linear.x = .2
     # publish twist
     topic.publish(cmd)
 

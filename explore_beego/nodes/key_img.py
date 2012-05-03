@@ -39,16 +39,16 @@ class TwistPublisher(threading.Thread):
 
     def cmd_forward(self, released=False):
         self._cmd_linear_released = released
-        self._cmd.linear.x = 1 # forward
+        self._cmd.linear.x = .2 # forward
     def cmd_backward(self, released=False):
         self._cmd_linear_released = released
-        self._cmd.linear.x = -1 # backward
+        self._cmd.linear.x = -.2 # backward
     def cmd_left(self, released=False):
         self._cmd_angular_released = released
-        self._cmd.angular.z = 1 # turn left
+        self._cmd.angular.z = .2 # turn left
     def cmd_right(self, released=False):
         self._cmd_angular_released = released
-        self._cmd.angular.z = -1 # turn right
+        self._cmd.angular.z = -.2 # turn right
     def cmd_stop(self, unused=False):
         self._cmd.linear.x = 0
         self._cmd.angular.z = 0
