@@ -2,7 +2,7 @@ from morse.builder import *
 from morse.builder.sensors import *
 
 # Append the robot to the scene
-robot = Robot('beego-robot.blend')
+robot = Robot('robot.blend')
 robot.name = "beego"
 
 # Append an actuator
@@ -21,7 +21,7 @@ robot.append(pose)
 scan = Sensor('sick')
 scan.name = "scan"
 scan.translate(x = 0.03, z = 0.56)
-scan.frequency(5) # with logic tic rate 60 Hz = update every 0.2 sec (5 Hz)
+scan.frequency(2)
 scan.properties(laser_range = 10)
 robot.append(scan)
 

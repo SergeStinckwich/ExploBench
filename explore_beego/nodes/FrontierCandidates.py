@@ -37,6 +37,8 @@ class FrontierCandidates(object):
         marker.id = marker_id
         marker.pose.position.x = x
         marker.pose.position.y = y
+        # TODO fill orientation
+        marker.pose.orientation.w = 1
         marker.text = str(marker_id)
         marker.type = Marker.TEXT_VIEW_FACING
         marker.header.frame_id = "map"
@@ -54,7 +56,7 @@ class FrontierCandidates(object):
         #rospy.wait_for_service('dynamic_map')
         #get_map = rospy.ServiceProxy('dynamic_map', GetMap)
         while not rospy.is_shutdown():
-            import pdb; pdb.set_trace()
+            #import pdb; pdb.set_trace()
             if not self.robot_pose:
                 rospy.sleep(0.5)
                 continue
@@ -81,6 +83,8 @@ class FrontierCandidates(object):
             # self.add_marker(x, y, 0)
             if not frontiers:
                 print("no frontier at %s"%str(xy_from_pose1d(pose1d)))
+            else:
+                print("!!! got %i frontier !!!"%len(frontiers))
             i = 0
             for eachFrontier in frontiers:
                 i += 1

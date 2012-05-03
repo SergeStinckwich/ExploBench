@@ -3,6 +3,7 @@
   <remap from="odom" to="beego/odometry" />
   <remap from="scan" to="beego/scan" />
   <remap from="base_scan" to="beego/scan" />
+  <remap from="cmd_vel" to="beego/velocity" />
   <!--param name="/use_sim_time" value="true"/-->
   <!--node pkg="explore_beego" type="fake_clock.py" name="fake_clock"/-->
 
@@ -21,9 +22,10 @@
     <!--param name="temporalUpdate" value="1.0" /-->
   </node>
 
-  <node pkg="move_base" type="move_base" name="move_base"/>
+  <include file="$(find explore_stage)/move.xml" />
 
-  <!--node pkg="explore_beego" type="FrontierCandidates.py"
+  <!--node pkg="move_base" type="move_base" name="move_base"/>
+  <node pkg="explore_beego" type="FrontierCandidates.py"
     name="FrontierCandidates"/>
   <node pkg="explore_beego" type="NextBestViewAlgorithm.py"
     name="NextBestViewAlgorithm" args="GBLNBVAlgorithm"/-->
