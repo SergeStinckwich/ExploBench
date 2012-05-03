@@ -21,7 +21,7 @@ robot.append(pose)
 scan = Sensor('sick')
 scan.name = "scan"
 scan.translate(x = 0.03, z = 0.56)
-scan.frequency(2)
+scan.frequency(10)
 scan.properties(laser_range = 10)
 robot.append(scan)
 
@@ -34,7 +34,7 @@ camera.properties(cam_width = 128, cam_height = 128, Vertical_Flip = True, captu
 
 # Configure the middlewares
 motion.configure_mw('ros')
-pose.configure_mw('ros')
+pose.configure_mw('ros', method='post_odometry_tf')
 scan.configure_mw('ros', component = 'sick')
 camera.configure_mw('ros')
 
