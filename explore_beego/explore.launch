@@ -16,8 +16,9 @@
         args="0 0 0 0 0 0 base_link base_laser_link 10" />
 
   <node pkg="gmapping" type="slam_gmapping" name="gmapping">
-    <param name="xmax" value="20" />
-    <param name="ymax" value="20" />
+    <param name="xmax" value="1" />
+    <param name="ymax" value="1" />
+    <param name="delt" value="0.5" />
     <!--param name="maxRange" value="10" /-->
     <!--param name="temporalUpdate" value="1.0" /-->
   </node>

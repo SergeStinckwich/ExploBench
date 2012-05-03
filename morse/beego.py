@@ -12,7 +12,7 @@ motion.translate(z = 0.3)
 robot.append(motion)
 
 # Append a Pose sensor (GPS + Gyroscope)
-pose = Sensor('pose')
+pose = Sensor('imu')
 pose.name = "odometry"
 pose.translate(x = -0.12, z = 0.46)
 robot.append(pose)
@@ -34,7 +34,7 @@ camera.properties(cam_width = 128, cam_height = 128, Vertical_Flip = True, captu
 
 # Configure the middlewares
 motion.configure_mw('ros')
-pose.configure_mw('ros', method='post_odometry_tf')
+pose.configure_mw('ros')
 scan.configure_mw('ros', component = 'sick')
 camera.configure_mw('ros')
 
