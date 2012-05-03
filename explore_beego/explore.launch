@@ -2,8 +2,7 @@
   <master auto="start"/>  
   <remap from="odom" to="beego/odometry" />
   <remap from="scan" to="beego/scan" />
-
-  <!--remap from="base_scan" to="beego/scan" /-->
+  <remap from="base_scan" to="beego/scan" />
   <!--param name="/use_sim_time" value="true"/-->
   <!--node pkg="explore_beego" type="fake_clock.py" name="fake_clock"/-->
 
@@ -25,7 +24,7 @@
   <node pkg="move_base" type="move_base" name="move_base"/>
 
   <!--node pkg="explore_beego" type="FrontierCandidates.py"
-    name="FrontierCandidates"/-->
+    name="FrontierCandidates"/>
   <node pkg="explore_beego" type="NextBestViewAlgorithm.py"
-    name="NextBestViewAlgorithm" args="GBLNBVAlgorithm"/>
+    name="NextBestViewAlgorithm" args="GBLNBVAlgorithm"/-->
 </launch>
