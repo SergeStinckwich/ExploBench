@@ -17,18 +17,20 @@
 
   <node pkg="gmapping" type="slam_gmapping" name="gmapping">
     <remap from="scan" to="base_scan" />
-    <param name="xmax" value="1" />
-    <param name="ymax" value="1" />
-    <param name="delt" value="0.5" />
+    <param name="xmin" value="-50" />
+    <param name="ymin" value="-50" />
+    <param name="xmax" value="50" />
+    <param name="ymax" value="50" />
+    <param name="delta" value="0.2" />
+    <!--param name="maxUrange" value="5.0" /-->
     <!--param name="maxRange" value="10" /-->
     <!--param name="temporalUpdate" value="1.0" /-->
   </node>
 
-  <!--include file="$(find explore_stage)/move.xml" /-->
+  <include file="$(find explore_beego)/move.xml" />
 
-  <!--node pkg="move_base" type="move_base" name="move_base"/>
   <node pkg="explore_beego" type="FrontierCandidates.py"
     name="FrontierCandidates"/>
-  <node pkg="explore_beego" type="NextBestViewAlgorithm.py"
+  <!--node pkg="explore_beego" type="NextBestViewAlgorithm.py"
     name="NextBestViewAlgorithm" args="GBLNBVAlgorithm"/-->
 </launch>

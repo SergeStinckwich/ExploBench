@@ -16,9 +16,12 @@
         args="0 0 0 0 0 0 base_link base_laser_link 10" />
 
   <node pkg="gmapping" type="slam_gmapping" name="gmapping">
-    <param name="xmax" value="1" />
-    <param name="ymax" value="1" />
-    <param name="delt" value="0.5" />
+    <remap from="scan" to="base_scan" />
+    <param name="xmin" value="-50" />
+    <param name="ymin" value="-50" />
+    <param name="xmax" value="50" />
+    <param name="ymax" value="50" />
+    <param name="delta" value="0.2" />
     <!--param name="maxRange" value="10" /-->
     <!--param name="temporalUpdate" value="1.0" /-->
   </node>
