@@ -1,4 +1,5 @@
 map_type: costmap
+recovery_behavior_enabled: false
 transform_tolerance: 0.5
 obstacle_range: 2.5
 max_obstacle_height: 2.0
