@@ -91,7 +91,7 @@ class NextBestViewAlgorithm(threading.Thread):
         # listening for goals.
         self.client.wait_for_server()
 
-        while self.exploring and not rospy.is_shutdown() and \
+        while self.exploring and \
                 self.pourcentageOfKnownEnv < self.maxPourcentageofCoverage:
             self.chooseBestCandidate()
             self.moveToBestCandidateLocation()
@@ -109,13 +109,18 @@ class NextBestViewAlgorithm(threading.Thread):
         self.plot = DumpPlot(self.className)
         while self.exploring:
             elapsed_time = self.dump()
+            if rospy.is_shutdown():
+                self.exploring = False
+                print("shutdown")
+                self.join(30) # wait for the exploration thread to stop
             if elapsed_time > 300:
                 print("timeout 5 min !")
                 self.exploring = False
                 self.join(30) # wait for the exploration thread to stop
                 break
             rospy.sleep(1.0)
-        rospy.signal_shutdown(self._node_name)
+        if not rospy.is_shutdown():
+            rospy.signal_shutdown(self._node_name)
 
     @abstractmethod
     def chooseBestCandidate(self): pass
