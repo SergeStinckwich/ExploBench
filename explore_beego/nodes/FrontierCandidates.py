@@ -72,15 +72,14 @@ class FrontierCandidates(object):
             origin_position = self.occupancy_grid.info.origin.position
             f = FrontierDetector(data, width, height)
             # TODO pose 0,0 center -> 0,0 up-left corner
-            pose1d = int(width * (self.robot_pose.position.x - origin_position.x) / resolution +
-                        (self.robot_pose.position.y - origin_position.y) / resolution)
+            pose1d = width * int((self.robot_pose.position.y - origin_position.y) / resolution) +\
+                     int((self.robot_pose.position.x - origin_position.x + 0.2) / resolution)
+            # 0.2 = laser - base
             frontiers = f.wavefront_frontier_detector(pose1d)
             def xy_from_pose1d(p):
                 x = origin_position.x + (p % width) * resolution
                 y = origin_position.y + (p // width) * resolution
                 return (x, y)
-            # FIXME (x, y) = xy_from_pose1d(pose1d)
-            # self.add_marker(x, y, 0)
             if not frontiers:
                 print("no frontier at %s"%str(xy_from_pose1d(pose1d)))
             else:
