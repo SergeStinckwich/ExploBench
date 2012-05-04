@@ -91,7 +91,7 @@ class NextBestViewAlgorithm(threading.Thread):
         # listening for goals.
         self.client.wait_for_server()
 
-        while self.exploring and \
+        while self.exploring and not rospy.is_shutdown() and \
                 self.pourcentageOfKnownEnv < self.maxPourcentageofCoverage:
             self.chooseBestCandidate()
             self.moveToBestCandidateLocation()
