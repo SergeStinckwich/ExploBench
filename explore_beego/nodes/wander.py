@@ -2,7 +2,7 @@
 """
 wander avoid obstacles
 usage:
-rosrun explore_beego wander.py laser:=/beego/scan cmd:=/beego/velocity
+rosrun explore_beego wander.py base_scan:=/beego/scan cmd_vel:=/beego/velocity
 """
 
 import roslib
@@ -35,7 +35,7 @@ def handle_sick(msg):
 
 if __name__ == '__main__':
     rospy.init_node('wander')
-    topic = rospy.Publisher('cmd', Twist)
-    rospy.Subscriber('laser', LaserScan, handle_sick)
+    topic = rospy.Publisher('cmd_vel', Twist)
+    rospy.Subscriber('base_scan', LaserScan, handle_sick)
     rospy.spin()
 

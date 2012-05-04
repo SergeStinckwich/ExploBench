@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 usage:
-rosrun explore_beego key_img.py cmd:=/beego/velocity image:=/beego/camera
+rosrun explore_beego key_img.py cmd_vel:=/beego/velocity image:=/beego/camera
 """
 
 import roslib
@@ -28,7 +28,7 @@ class TwistPublisher(threading.Thread):
     def run(self):
         def slowing(vel, coef=0.8, limit=0.01):
             return 0.0 if abs(vel) < limit else vel * coef
-        publisher = rospy.Publisher('/cmd', Twist)
+        publisher = rospy.Publisher('cmd_vel', Twist)
         while not rospy.is_shutdown() and self.cont:
             publisher.publish(self._cmd)
             if self._cmd_linear_released:
@@ -84,7 +84,7 @@ class KeyEventFrame(wx.Frame):
         self.Centre()
         self.Show()
         rospy.init_node('wxKeyTwist')
-        rospy.Subscriber('/image', Image, self.HandleImage)
+        rospy.Subscriber('image', Image, self.HandleImage)
         self.publisher.start()
 
     def BindKey(self, key, function):
