@@ -1,2 +1,3 @@
 NavfnROS:
   transform_tolerance: 0.3
+  allow_unknown: false

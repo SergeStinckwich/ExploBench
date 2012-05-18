@@ -29,8 +29,8 @@
 
   <include file="$(find explore_beego)/move.xml" />
 
-  <node pkg="explore_beego" type="FrontierCandidates.py"
-    name="FrontierCandidates"/>
+  <!--node pkg="explore_beego" type="FrontierCandidates.py"
+    name="FrontierCandidates"/-->
   <!--node pkg="explore_beego" type="NextBestViewAlgorithm.py"
     name="NextBestViewAlgorithm" args="GBLNBVAlgorithm"/-->
 </launch>

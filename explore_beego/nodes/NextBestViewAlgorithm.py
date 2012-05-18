@@ -84,6 +84,7 @@ class NextBestViewAlgorithm(threading.Thread):
         self.subscriber_laser_once = rospy.Subscriber('base_scan', LaserScan, self.handle_laserscan)
         self.client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
         self.exploring = False
+        self.goal_seq = 0
 
     def run(self):
         self.exploring = True
@@ -229,10 +230,29 @@ class NextBestViewAlgorithm(threading.Thread):
             rospy.loginfo('Move to best candidate')
 
             # Creates a goal to send to the action server.
+            self.goal_seq += 1
             goal = MoveBaseGoal()
-            goal.target_pose.header.frame_id = "map"
+            goal.target_pose.header.seq = self.goal_seq
+            goal.target_pose.header.frame_id = "/map"
             goal.target_pose.pose = self.bestCandidate
             print(goal)
+            dbg = Marker()
+            self.marker_dbg_seq += 1
+            dbg.id = 999
+            dbg.pose = self.bestCandidate
+            dbg.text = "goal:%.3f,%.3f"%(self.bestCandidate.position.x,
+                                         self.bestCandidate.position.y)
+            dbg.type = Marker.TEXT_VIEW_FACING
+            dbg.header.frame_id = "map"
+            dbg.header.seq = self.marker_dbg_seq
+            dbg.header.stamp = rospy.Time.now()
+            dbg.action = Marker.ADD
+            dbg.ns = "dbg"
+            dbg.color.g = 1
+            dbg.color.a = .5
+            dbg.scale.z = .5
+            dbg.lifetime.secs = 30
+            self.marker_dbg.publish(dbg)
 
             # Sends the goal to the action server.
             self.client.send_goal(goal)

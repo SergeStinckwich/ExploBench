@@ -49,12 +49,12 @@ _WARN_: Patch ROS Python3
 You might need to patch ROS (due to a regression in Python3 compatibility):
 
     wget http://anr-proteus.github.com/slides/rospy3k.patch 
-    sudo patch -p0 < rospy3k.patch
+    sudo patch -Np0 < rospy3k.patch
 
 _TIP_: if ROS is not in `/opt/ros`, patch as:
 
     roscd common_msgs
-    wget http://anr-proteus.github.com/slides/rospy3k.patch -O - | patch -p5
+    wget http://anr-proteus.github.com/slides/rospy3k.patch -O - | patch -Np5
 
 # Install ExploBench
 

@@ -39,16 +39,16 @@ class FrontierCandidates(object):
         marker.pose.position.y = y
         # TODO fill orientation
         marker.pose.orientation.w = 1
-        marker.text = str(marker_id)
+        marker.text = "%i:%.3f,%.3f"%(marker_id, x, y)
         marker.type = Marker.TEXT_VIEW_FACING
-        marker.header.frame_id = "map"
+        marker.header.frame_id = "/map"
         marker.header.seq = self.marker_seq
         marker.header.stamp = rospy.Time.now()
         marker.action = Marker.ADD
         marker.ns = "frontier2"
         marker.color.r = 1
         marker.color.a = .5
-        marker.scale.z = 1
+        marker.scale.z = .5
         marker.lifetime.secs = 30
         self.marker_candidates.publish(marker)
 
